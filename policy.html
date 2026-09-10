@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Notely • Policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/variables.css">
+<link rel="stylesheet" href="styles/global.css">
+<style>
+body { min-height:100vh; background:var(--bg); }
+.legal-page { max-width:760px; margin:0 auto; padding:24px 18px 48px; }
+.legal-head { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+.legal-back { border:0; background:transparent; font-size:28px; cursor:pointer; color:var(--text); }
+.legal-head h1 { margin:0; font-size:1.45rem; }
+.legal-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px; box-shadow:var(--shadow, none); }
+.legal-updated { color:var(--muted); font-size:.82rem; margin-top:0; }
+.legal-intro { line-height:1.65; }
+.legal-section { margin-top:24px; }
+.legal-section h2 { font-size:1rem; margin-bottom:8px; }
+.legal-section p, .legal-section li { line-height:1.65; }
+.legal-section ul { padding-left:20px; }
+</style>
+</head>
+<body>
+<main class="legal-page">
+  <header class="legal-head">
+    <button class="legal-back" id="back" aria-label="Back">←</button>
+    <h1 id="title">Notely</h1>
+  </header>
+  <article class="legal-card" id="content"></article>
+</main>
+<script src="services/theme.js"></script>
+<script src="api/config.js"></script>
+<script src="utils/dom.js"></script>
+<script src="pages/policies/policies.js"></script>
+<script>
+(() => {
+  const key = new URLSearchParams(location.search).get("doc") || "terms";
+  const data = window.POLICY_CONTENT?.[key] || window.POLICY_CONTENT?.terms;
+  document.title = `Notely • ${data.title}`;
+  document.getElementById("title").textContent = data.title;
+  const root = document.getElementById("content");
+  const updated = document.createElement("p");
+  updated.className = "legal-updated";
+  updated.textContent = "Last updated: August 2026";
+  root.appendChild(updated);
+  if (data.intro) { const p=document.createElement("p"); p.className="legal-intro"; p.textContent=data.intro; root.appendChild(p); }
+  (data.sections || []).forEach(sec => {
+    const section=document.createElement("section"); section.className="legal-section";
+    const h=document.createElement("h2"); h.textContent=sec.heading; section.appendChild(h);
+    if (sec.body) { const p=document.createElement("p"); p.textContent=sec.body; section.appendChild(p); }
+    if (sec.bullets?.length) { const ul=document.createElement("ul"); sec.bullets.forEach(text => { const li=document.createElement("li"); li.textContent=text; ul.appendChild(li); }); section.appendChild(ul); }
+    root.appendChild(section);
+  });
+  document.getElementById("back").addEventListener("click", () => history.length > 1 ? history.back() : location.href="auth/register.html");
+})();
+</script>
+</body>
+</html>

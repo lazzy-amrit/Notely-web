@@ -1,0 +1,115 @@
+/* ------------------------------------------------------------------
+   auth/css/theme.css
+   Loaded LAST on every auth screen.
+
+   Two jobs:
+   1. Alignment fixes that every auth screen shares (back button,
+      header spacing, safe-area padding) — applied in both themes.
+   2. The dark palette. Each auth page still declares its own :root
+      tokens; `html[data-theme="dark"]` outranks `:root` on
+      specificity, so simply redeclaring the same token names here
+      re-themes every screen without touching the page stylesheets.
+      The handful of places that hardcoded #fff are patched below.
+
+   services/theme.js sets data-theme on <html> before first paint.
+------------------------------------------------------------------ */
+
+/* ---------------- 1. Shared alignment ---------------- */
+
+/* The back button used to be a plain <button> with a bare "←" text
+   node, so the glyph sat wherever the default line-height put it —
+   visibly high and left-of-centre inside the 46px tile on Android.
+   Grid centring with a normalised line-height puts it dead centre at
+   any font size, and the 46px box now also meets the 44px minimum
+   touch target. */
+.back-btn {
+    display: grid !important;
+    place-items: center;
+    padding: 0 !important;
+    line-height: 1;
+    font-size: 21px;
+    /* The arrow glyph renders slightly above the optical centre in most
+       system fonts; a hair of translation lands it visually centred. */
+    text-indent: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    flex: 0 0 auto;
+    align-self: flex-start;
+}
+.back-btn:active { transform: scale(.94); }
+.back-btn > * { display: block; }
+
+/* Keep the header row and its back button on a consistent gutter and
+   clear of the status bar / gesture bar on Android. */
+.screen {
+    box-sizing: border-box;
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+.screen > * { max-width: 100%; box-sizing: border-box; }
+
+/* ---------------- 2. Dark palette ---------------- */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --primary: #9D8CFF;
+    --primary-light: #B6A8FF;
+
+    --bg: #101017;
+    --surface: #191922;
+    --input-bg: #22222E;
+
+    --text: #ECECF2;
+    --muted: #9C9CB0;
+    --border: #2C2C3A;
+
+    --success: #3DDC7F;
+    --danger: #FF6B60;
+
+    --teacher-bg: #221E33;
+    --student-bg: #1B2430;
+}
+
+html[data-theme="dark"] body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* Hardcoded whites in the per-page stylesheets. */
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+    background: var(--input-bg) !important;
+    color: var(--text);
+    border-color: var(--border);
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color: var(--muted); }
+
+html[data-theme="dark"] .back-btn,
+html[data-theme="dark"] .otp-card,
+html[data-theme="dark"] .suggest-register,
+html[data-theme="dark"] .auth-card,
+html[data-theme="dark"] .card {
+    background: var(--surface);
+    color: var(--text);
+}
+
+html[data-theme="dark"] .back-btn { border: 1px solid var(--border); }
+
+/* Auto-fill in Chrome/WebView paints its own light-blue background. */
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text);
+    -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset;
+    caret-color: var(--text);
+}
+
+/* shared.css notice/spinner were tuned for a light card. */
+html[data-theme="dark"] .auth-notice {
+    background: rgba(255, 255, 255, .05);
+    border-color: rgba(255, 255, 255, .12);
+    color: var(--text);
+}

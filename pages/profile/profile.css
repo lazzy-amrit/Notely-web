@@ -1,0 +1,43 @@
+.profile-hero-card{padding:28px 18px 22px;text-align:center;position:relative;overflow:hidden}
+.profile-hero-card::before{content:"";position:absolute;inset:0 0 auto;height:110px;background:linear-gradient(135deg,rgba(124,92,255,.14),rgba(99,102,241,.04));pointer-events:none}
+.profile-hero-card>*{position:relative}
+.profile-role-line{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:9px}
+.profile-role-line .material-symbols-rounded{font-size:17px}
+.profile-bio{max-width:520px;margin:12px auto 0!important}
+.profile-account-card{margin-top:14px;padding:16px}
+.profile-account-row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--border)}
+.profile-account-row:last-child{border-bottom:0}
+.profile-account-row .material-symbols-rounded{font-size:21px;color:var(--primary)}
+.profile-account-copy{display:flex;flex-direction:column;gap:2px;text-align:left;min-width:0}
+.profile-account-copy strong{font-size:.92rem}
+.profile-account-copy span{font-size:.78rem;color:var(--muted)}
+.profile-teacher-card{margin-top:14px;padding:14px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.profile-teacher-title{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.profile-teacher-title .material-symbols-rounded{color:var(--primary)}
+.profile-teacher-card>div:not(.profile-teacher-title){display:flex;justify-content:space-between;gap:16px;padding:7px 0}
+.profile-teacher-card>div:not(.profile-teacher-title) span{color:var(--muted);font-size:.8rem}
+.profile-teacher-card>div:not(.profile-teacher-title) strong{font-size:.84rem;text-align:right}
+.profile-preview-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.profile-group-picker{display:grid;gap:8px;margin-top:14px}
+.profile-group-sheet .action-tile{width:100%}
+
+/* ---------------- APPEARANCE / THEME PICKER ---------------- */
+/* Equal-width grid columns so the three options stay symmetric on every
+   screen width instead of wrapping unevenly. */
+.theme-card { padding: 14px; }
+.theme-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.theme-card-head .card-row-sub { color: var(--muted); font-size: .76rem; margin-top: 2px; }
+.theme-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.theme-option {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    min-height: 64px; min-width: 0; padding: 10px 6px; box-sizing: border-box;
+    border: 2px solid var(--border); border-radius: var(--radius-md);
+    background: var(--surface); color: var(--text);
+    font: inherit; font-size: .78rem; font-weight: 700; line-height: 1.2;
+    cursor: pointer; transition: border-color .15s ease, background .15s ease, color .15s ease, transform .1s ease;
+}
+.theme-option .material-symbols-rounded { font-size: 20px; color: var(--muted); transition: color .15s ease; }
+.theme-option:active { transform: scale(.97); }
+.theme-option:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--primary-soft-strong); border-color: var(--primary); }
+.theme-option.selected { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+.theme-option.selected .material-symbols-rounded { color: var(--primary); }

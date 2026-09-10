@@ -1,0 +1,555 @@
+:root{
+
+    --primary:#7B61FF;
+    --primary-light:#9F8CFF;
+
+    --bg:#F6F7FC;
+
+    --surface:#FFFFFF;
+
+    --text:#1B1B1F;
+
+    --muted:#777785;
+
+    --border:#E8E8EF;
+
+    --success:#34C759;
+
+    --danger:#FF3B30;
+
+    --radius:22px;
+
+}
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+    -webkit-tap-highlight-color:transparent;
+
+}
+
+html{
+
+    font-size:16px;
+
+}
+
+body{
+
+    min-height:100dvh;
+
+    font-family:"Outfit",sans-serif;
+
+    background:var(--bg);
+
+    color:var(--text);
+
+}
+
+.screen{
+
+    min-height:100dvh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    padding:
+        max(18px,env(safe-area-inset-top))
+        18px
+        max(22px,env(safe-area-inset-bottom));
+
+}
+
+/* ---------------- HEADER ---------------- */
+
+.header{
+
+    margin-bottom:34px;
+
+    text-align:center;
+
+}
+
+.logo{
+
+    width:64px;
+
+    height:64px;
+
+    margin:0 auto 20px;
+
+    border-radius:20px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:#fff;
+
+    font-size:30px;
+
+    font-weight:800;
+
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-light)
+    );
+
+    box-shadow:
+    0 18px 35px rgba(123,97,255,.25);
+
+}
+
+.header h1{
+
+    font-size:2rem;
+
+    font-weight:800;
+
+}
+
+.header p{
+
+    margin-top:8px;
+
+    color:var(--muted);
+
+    line-height:1.5;
+
+}
+
+/* ---------------- FORM ---------------- */
+
+form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+.input-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+.input-group label{
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+}
+
+input{
+
+    width:100%;
+
+    height:58px;
+
+    border:2px solid var(--border);
+
+    border-radius:18px;
+
+    background:#fff;
+
+    padding:0 18px;
+
+    font-size:1rem;
+
+    font-family:inherit;
+
+    transition:.2s;
+
+}
+
+input:focus{
+
+    outline:none;
+
+    border-color:var(--primary);
+
+    box-shadow:
+    0 0 0 5px rgba(123,97,255,.08);
+
+}
+
+input.error{
+
+    border-color:var(--danger);
+
+}
+
+/* ---------------- PASSWORD ---------------- */
+
+.password-box{
+
+    position:relative;
+
+}
+
+.password-box input{
+
+    padding-right:56px;
+
+}
+
+#togglePassword{
+
+    position:absolute;
+
+    right:8px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    width:42px;
+
+    height:42px;
+
+    border:none;
+
+    background:none;
+
+    cursor:pointer;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:#757575;
+
+}
+
+#togglePassword:hover{
+
+    color:var(--primary);
+
+}
+
+.material-symbols-rounded{
+
+    font-size:24px;
+
+}
+
+/* ---------------- ERROR ---------------- */
+
+#loginError{
+
+    min-height:20px;
+
+    color:var(--danger);
+
+    font-size:.85rem;
+
+    font-weight:500;
+
+    text-align:center;
+
+}
+
+/* ---------------- FORGOT ---------------- */
+
+.forgot-row{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    margin-top:-4px;
+
+}
+
+#forgotBtn{
+
+    border:none;
+
+    background:none;
+
+    color:var(--primary);
+
+    font-family:inherit;
+
+    font-size:.92rem;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+}
+
+/* ---------------- BUTTON ---------------- */
+
+#loginBtn{
+
+    margin-top:8px;
+
+    height:60px;
+
+    border:none;
+
+    border-radius:20px;
+
+    background:#D8D8DE;
+
+    color:#fff;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+    transition:.25s;
+
+}
+
+#loginBtn.active{
+
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-light)
+    );
+
+    box-shadow:
+    0 18px 35px rgba(123,97,255,.22);
+
+}
+
+#loginBtn:disabled{
+
+    cursor:not-allowed;
+
+}
+
+/* ---------------- DIVIDER ---------------- */
+
+.divider{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    margin:28px 0;
+
+    color:var(--muted);
+
+    font-size:.9rem;
+
+}
+
+.divider::before,
+
+.divider::after{
+
+    content:"";
+
+    flex:1;
+
+    height:1px;
+
+    background:var(--border);
+
+}
+
+/* ---------------- BOTTOM ---------------- */
+
+.bottom-text{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:6px;
+
+    margin-bottom:22px;
+
+}
+
+.bottom-text p{
+
+    color:var(--muted);
+
+}
+
+#createAccountBtn{
+
+    border:none;
+
+    background:none;
+
+    color:var(--primary);
+
+    font-family:inherit;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+}
+
+/* ---------------- REGISTER CARD ---------------- */
+
+.suggest-register{
+
+    display:none;
+
+    align-items:center;
+
+    gap:14px;
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:18px;
+
+    box-shadow:
+    0 10px 25px rgba(0,0,0,.05);
+
+    animation:fade .25s ease;
+
+}
+
+.suggest-register span{
+
+    color:var(--primary);
+
+    font-size:32px;
+
+}
+
+.suggest-register h4{
+
+    font-size:1rem;
+
+    margin-bottom:4px;
+
+}
+
+.suggest-register p{
+
+    color:var(--muted);
+
+    font-size:.88rem;
+
+    line-height:1.4;
+
+}
+
+#quickRegisterBtn{
+
+    margin-left:auto;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:10px 18px;
+
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-light)
+    );
+
+    color:#fff;
+
+    font-family:inherit;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+}
+
+/* ---------------- ANIMATION ---------------- */
+
+@keyframes fade{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(12px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ---------------- SCROLL ---------------- */
+
+body::-webkit-scrollbar{
+
+    display:none;
+
+}
+
+/* ---------------- SMALL DEVICES ---------------- */
+
+@media (max-height:700px){
+
+    .header{
+
+        margin-bottom:24px;
+
+    }
+
+    .logo{
+
+        width:56px;
+
+        height:56px;
+
+        font-size:26px;
+
+    }
+
+    .header h1{
+
+        font-size:1.7rem;
+
+    }
+
+    input{
+
+        height:54px;
+
+    }
+
+}

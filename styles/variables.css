@@ -1,0 +1,136 @@
+/* ------------------------------------------------------------------
+   Design tokens for the main app shell.
+   These match the values already established in auth/css/*.css so
+   every screen (auth + app) feels like the same product.
+
+   Two themes live here: the default light palette on :root, and a
+   purpose-built dark palette under html[data-theme="dark"] (set by
+   services/theme.js). The dark palette is NOT "black + purple
+   everywhere": it keeps a layered set of neutral surfaces
+   (bg < surface < surface-alt) with a real border colour between
+   them, readable primary/secondary text, and purple used only as an
+   accent, exactly as in light mode.
+------------------------------------------------------------------ */
+
+:root {
+    color-scheme: light;
+
+    --primary: #7B61FF;
+    --primary-light: #9E8CFF;
+    --primary-dark: #5F45E0;
+    /* Tint used for "primary at low opacity" surfaces (chips, icon
+       tiles). A token so dark mode can use a stronger tint that still
+       reads on a dark surface. */
+    --primary-soft: rgba(123, 97, 255, .11);
+    --primary-soft-strong: rgba(123, 97, 255, .18);
+    /* Filled-button surface. Kept separate from --primary so dark mode
+       can lift --primary (for text/icons on dark) while keeping filled
+       buttons dark enough for white label text to stay readable. */
+    --primary-btn-from: #7B61FF;
+    --primary-btn-to: #9E8CFF;
+    --on-primary: #FFFFFF;
+
+    --bg: #F6F7FC;
+    --surface: #FFFFFF;
+    --surface-alt: #F1F1F8;
+    /* Third layer: sheets/modals sitting on top of a dimmed page. */
+    --surface-raised: #FFFFFF;
+    /* Referenced by messages.css as var(--surface-2, ...) */
+    --surface-2: rgba(127, 127, 127, .08);
+    --input-bg: #FFFFFF;
+
+    --text: #1B1B1F;
+    --muted: #777785;
+    --border: #E8E8EF;
+
+    --success: #34C759;
+    --success-bg: #E9FBEF;
+    --success-soft: rgba(52, 199, 89, .14);
+    --danger: #FF3B30;
+    --danger-bg: #FFEEED;
+    --danger-soft: rgba(255, 59, 48, .13);
+    --warning: #FF9F0A;
+    --warning-bg: #FFF4E5;
+    --warning-text: #B36B00;
+    --warning-soft: rgba(255, 159, 10, .15);
+    --star: #F5A524;
+    --star-soft: rgba(245, 165, 36, .16);
+
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 24px;
+    --radius-xl: 28px;
+
+    --shadow-sm: 0 4px 14px rgba(20, 20, 40, .06);
+    --shadow-md: 0 10px 30px rgba(20, 20, 40, .08);
+    --shadow-primary: 0 14px 30px rgba(123, 97, 255, .22);
+
+    --scrim: rgba(20, 20, 30, .45);
+
+    --nav-height: 68px;
+    --header-height: 56px;
+
+    /* Page gutter — one number every screen, sheet and form aligns to. */
+    --gutter: 16px;
+    --sheet-gutter: 18px;
+    --sheet-max-width: 520px;
+
+    --bubble-mine: linear-gradient(135deg, var(--primary), var(--primary-light));
+    --bubble-theirs: #FFFFFF;
+}
+
+/* ---------------- DARK THEME ----------------
+   Layering (darkest -> lightest):
+     --bg            page canvas
+     --surface       cards, nav bar, inputs sitting on the canvas
+     --surface-alt   pressed states, chips, secondary buttons
+     --surface-raised sheets/modals, which float above a scrim
+   Text: --text is a soft off-white (never pure #FFF, which vibrates on
+   OLED), --muted stays >4.5:1 against --surface. Purple is lifted just
+   enough to stay legible on dark surfaces while remaining an accent. */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --primary: #9D8CFF;
+    --primary-light: #B6A8FF;
+    --primary-dark: #7B61FF;
+    --primary-soft: rgba(157, 140, 255, .14);
+    --primary-soft-strong: rgba(157, 140, 255, .24);
+    --primary-btn-from: #6A54D6;
+    --primary-btn-to: #8672F0;
+    --on-primary: #FFFFFF;
+
+    --bg: #101017;
+    --surface: #191922;
+    --surface-alt: #22222E;
+    --surface-raised: #1E1E29;
+    --surface-2: rgba(255, 255, 255, .07);
+    --input-bg: #22222E;
+
+    --text: #ECECF2;
+    --muted: #9C9CB0;
+    --border: #2C2C3A;
+
+    --success: #3DDC7F;
+    --success-bg: rgba(61, 220, 127, .14);
+    --success-soft: rgba(61, 220, 127, .16);
+    --danger: #FF6B60;
+    --danger-bg: rgba(255, 107, 96, .14);
+    --danger-soft: rgba(255, 107, 96, .16);
+    --warning: #FFB84D;
+    --warning-bg: rgba(255, 184, 77, .14);
+    --warning-text: #FFC978;
+    --warning-soft: rgba(255, 184, 77, .18);
+    --star: #FFC24D;
+    --star-soft: rgba(255, 194, 77, .18);
+
+    --shadow-sm: 0 3px 10px rgba(0, 0, 0, .20);
+    --shadow-md: 0 8px 22px rgba(0, 0, 0, .28);
+    --shadow-primary: 0 14px 30px rgba(90, 70, 190, .30);
+
+    --scrim: rgba(0, 0, 0, .62);
+
+    --bubble-mine: linear-gradient(135deg, #6E58D8, #8A76F0);
+    --bubble-theirs: #22222E;
+}

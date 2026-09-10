@@ -1,0 +1,81 @@
+/* ------------------------------------------------------------------
+   auth/css/shared.css
+   Self-contained toast + inline-notice styles shared by every auth
+   screen (login, register, otp, password, reset_password). Kept
+   separate from styles/global.css on purpose: the app shell's global
+   reset (`* { margin:0 }`, body background via --bg, etc.) is not
+   something we want fighting with each auth page's own hand-tuned
+   layout. This file only adds new, namespaced classes - it never
+   touches existing selectors.
+------------------------------------------------------------------ */
+
+.toast-stack {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 2000;
+    pointer-events: none;
+    padding: 0 16px;
+}
+
+.toast {
+    pointer-events: auto;
+    background: #232329;
+    color: #fff;
+    font-size: .88rem;
+    font-weight: 500;
+    padding: 12px 18px;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .28);
+    max-width: 90vw;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.toast-in { opacity: 1; transform: translateY(0); }
+.toast-success { background: #1F6B3A; }
+.toast-error { background: #8C2A24; }
+
+/* ---------------- Inline auth notice (e.g. "Email not verified") ---------------- */
+/* Sits inline in the auth-card flow so it never overlaps form fields
+   the way a floating toast could on a short screen. */
+
+.auth-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 4px 0 14px;
+    font-size: .88rem;
+    font-weight: 500;
+    color: #fff;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.auth-notice.show { opacity: 1; transform: translateY(0); }
+
+.auth-notice .spinner {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .3);
+    border-top-color: #fff;
+    animation: auth-notice-spin .7s linear infinite;
+}
+
+@keyframes auth-notice-spin {
+    to { transform: rotate(360deg); }
+}

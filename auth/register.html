@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Notely • Create Account</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    
+    <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+    rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="css/register.css">
+    <link rel="stylesheet" href="css/shared.css">
+
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="../services/theme.js"></script>
+</head>
+
+<body>
+
+    <main class="screen">
+
+        <!-- Header -->
+
+        <header class="header">
+
+            <button
+                class="back-btn"
+                id="backBtn">
+
+                ←
+
+            </button>
+
+            <div class="logo">
+
+                N
+
+            </div>
+
+            <h1>Create Account</h1>
+
+            <p>Let's get you started.</p>
+
+        </header>
+
+        <!-- Form -->
+
+        <form
+            id="registerForm"
+            autocomplete="off">
+
+            <!-- Username -->
+
+            <div class="input-group">
+
+                <label>
+
+                    Username
+
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Choose a unique username"
+                    maxlength="20"
+                    autocomplete="off">
+
+                <small
+                    id="usernameStatus">
+
+                </small>
+
+            </div>
+
+            <!-- Name -->
+
+            <div class="input-group">
+
+                <label>
+
+                    Full Name
+
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Your full name">
+
+            </div>
+
+            <!-- Email -->
+
+            <div class="input-group">
+
+                <label>
+
+                    Email
+
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="example@email.com">
+                <small id="emailError"></small>
+
+            </div>
+
+            <!-- Password -->
+
+            <div class="input-group">
+
+    <label>
+        Password
+    </label>
+
+    <div class="password-box">
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Create a password"
+            autocomplete="current-password">
+
+        <button
+            type="button"
+            id="togglePassword"
+            aria-label="Show password">
+
+            <span
+                id="eyeIcon"
+                class="material-symbols-rounded">
+
+                visibility
+
+            </span>
+
+        </button>
+
+    </div>
+
+    <div class="password-rules">
+
+        <small
+            id="ruleLength">
+
+            • 8+ characters
+
+        </small>
+
+        <small
+            id="ruleUpper">
+
+            • One uppercase letter
+
+        </small>
+
+        <small
+            id="ruleNumber">
+
+            • One number
+
+        </small>
+
+    </div>
+
+</div>
+            <!-- Teacher Only -->
+
+            <section
+                id="teacherFields">
+
+              <div class="teacher-header">
+
+    <h3>
+
+        School Information
+
+    </h3>
+
+    <label class="skip-school">
+
+        <input
+            type="checkbox"
+            id="skipSchool">
+
+        <span>
+
+            Skip for now
+
+        </span>
+
+    </label>
+
+</div>
+
+                <div class="input-group">
+
+                    <label>
+
+                        School Name
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="schoolName"
+                        placeholder="ABC Public School">
+
+                </div>
+
+                <div class="input-group">
+
+                    <label>
+
+                        Subjects You Teach
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="subjects"
+                        placeholder="Math, Science">
+
+                </div>
+
+                <div class="input-group">
+
+                    <label>
+
+                        School Phone
+
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="schoolPhone"
+                        placeholder="+91 98765 43210">
+
+                </div>
+
+                <div class="input-group">
+
+                    <label>
+
+                        School Coordinator
+
+                        <span>(Optional)</span>
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="coordinator"
+                        placeholder="Leave empty if none">
+
+                </div>
+
+            </section>
+
+            <small id="registerError" class="form-error"></small>
+
+            <p class="legal-note">
+                By continuing you agree to Notely's
+                <a href="../policy.html?doc=terms" target="_blank" rel="noopener">Terms</a>
+                and
+                <a href="../policy.html?doc=privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+            </p>
+
+            <button
+                id="registerBtn"
+                type="submit"
+                disabled>
+
+                Continue →
+
+            </button>
+
+            <div class="bottom-link">
+
+    Already have an account?
+
+    <a href="login.html">
+
+        Login
+
+    </a>
+
+</div>
+
+        </form>
+
+    </main>
+
+    <script src="../api/config.js"></script>
+    <script src="../services/session.js"></script>
+    <script src="js/storage.js"></script>
+
+    <script src="js/register.js"></script>
+
+</body>
+
+</html>

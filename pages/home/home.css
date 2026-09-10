@@ -1,0 +1,12 @@
+/* Home dashboard uses shared .greeting/.quick-actions/.stat-row styles
+   from styles/app.css. No page-specific overrides needed yet. */
+
+/* Flat rows for the recent-messages preview — same borderless look as
+   the Messages tab itself, no boxed panel around the list. */
+.recent-message-list { display: flex; flex-direction: column; gap: 2px; }
+
+/* Recent messages (dashboard) — mobile-first rows with time + preview */
+.recent-message-row .card-row-title { display:flex; align-items:baseline; gap:8px; min-width:0; }
+.recent-message-row .card-row-title > span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.recent-message-row .recent-time { flex:0 0 auto; color:var(--muted); font-size:.62rem; font-weight:600; }
+.recent-message-row .card-row-sub { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }

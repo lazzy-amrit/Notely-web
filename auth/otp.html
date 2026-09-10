@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Notely • Verify Email</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/otp.css">
+
+    <link rel="stylesheet" href="css/shared.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="../services/theme.js"></script>
+</head>
+
+<body>
+
+    <main class="screen">
+
+        <!-- Header -->
+
+        <header class="header">
+
+            <div class="logo">
+
+                N
+
+            </div>
+
+            <h1>
+
+                Verify your email
+
+            </h1>
+
+            <p>
+    We've sent a verification code to the email linked with your account.
+</p>
+
+<h3 id="usernameDisplay">
+    @username
+</h3>
+
+        </header>
+
+        <!-- OTP -->
+
+        <section class="otp-card">
+
+            <div
+                class="otp-boxes"
+                id="otpBoxes">
+
+                <input
+                    class="otp"
+                    maxlength="1"
+                    inputmode="numeric">
+
+                <input
+                    class="otp"
+                    maxlength="1"
+                    inputmode="numeric">
+
+                <input
+                    class="otp"
+                    maxlength="1"
+                    inputmode="numeric">
+
+                <input
+                    class="otp"
+                    maxlength="1"
+                    inputmode="numeric">
+
+                <input
+                    class="otp"
+                    maxlength="1"
+                    inputmode="numeric">
+
+                <input
+                    class="otp"
+                    maxlength="1"
+                    inputmode="numeric">
+
+            </div>
+
+            <small id="otpError"></small>
+
+            <button
+                id="verifyBtn"
+                disabled>
+
+                Verify
+
+            </button>
+
+            <div class="resend">
+
+                <span id="timer">
+
+                    Resend in 01:00
+
+                </span>
+
+                <button
+                    id="resendBtn"
+                    disabled>
+
+                    Resend Code
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- Success -->
+
+        <section
+            class="success-card"
+            id="successCard">
+
+            <div class="success-icon">
+
+                ✓
+
+            </div>
+
+            <h2>
+
+                OTP Verified
+
+            </h2>
+
+            <p>
+
+                Your account has been created successfully.
+
+            </p>
+
+            <small>
+
+                Redirecting you to login...
+
+            </small>
+
+        </section>
+
+    </main>
+
+    <script src="../api/config.js"></script>
+    <script src="../services/session.js"></script>
+    <script src="js/storage.js"></script>
+
+    <script src="js/otp.js"></script>
+
+</body>
+
+</html>

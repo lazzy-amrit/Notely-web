@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Notely • Choose Role</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/role.css">
+
+    <link rel="stylesheet" href="css/shared.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="../services/theme.js"></script>
+</head>
+
+<body>
+
+    <main class="screen">
+
+        <header class="header">
+
+            <div class="app-logo">
+                N
+            </div>
+
+            <h1>Who are you?</h1>
+
+            <p>Select your role to continue</p>
+
+        </header>
+
+        <section class="cards">
+
+            <button
+                class="card teacher"
+                data-role="teacher">
+
+                <div class="check">
+                    ✓
+                </div>
+
+                <div class="image">
+
+                    <img
+                        src="../assets/images/teacher.png"
+                        alt="Teacher">
+
+                </div>
+
+                <h2>Teacher</h2>
+
+            </button>
+
+            <button
+                class="card student"
+                data-role="student">
+
+                <div class="check">
+                    ✓
+                </div>
+
+                <div class="image">
+
+                    <img
+                        src="../assets/images/student.png"
+                        alt="Student">
+
+                </div>
+
+                <h2>Student</h2>
+
+            </button>
+
+        </section>
+
+        <button
+            id="continueBtn"
+            disabled>
+
+            Continue →
+
+        </button>
+
+    </main>
+
+    <script src="../api/config.js"></script>
+    <script src="../services/session.js"></script>
+    <script src="js/storage.js"></script>
+
+    <script src="js/role.js"></script>
+
+</body>
+
+</html>

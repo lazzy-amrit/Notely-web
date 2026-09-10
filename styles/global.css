@@ -1,0 +1,404 @@
+/* ------------------------------------------------------------------
+   Global reset + shared component styles used across every app page.
+   Page-specific layout lives in styles/app.css and pages/*
+   /*.css.------------------------------------------------------------------ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; }
+
+/* ---------------- FOCUS / TAP STYLING ---------------- */
+/* The WebView's default focus ring (Chrome's `outline: -webkit-focus-ring-
+   color auto`) is what makes a tapped button/card show a stray dark
+   border that stays lit until something else is tapped — the
+   "feels like a website" / persistent black-line complaint. `-webkit-
+   tap-highlight-color: transparent` above already kills the tap
+   *flash*; this handles the *ring*.
+   A pointer/hover media-query gate was tried first (keep the ring only
+   for a real mouse), but this WebView doesn't reliably report touch vs.
+   pointer, so the ring kept showing anyway on-device. Removing it
+   outright instead — this is a touch-only packaged app, so no real
+   keyboard/switch-access ring is being traded away in practice. Form
+   fields keep their own dedicated focus style further down in this
+   file and are untouched. */
+/* Belt-and-braces: some WebView builds paint the ring on elements that
+   aren't in a hand-written list (rows built as <div role="button">,
+   wrappers that receive focus via :focus-within, etc.), which is what
+   leaves the stray dark outline around a card after it's tapped. Kill
+   it everywhere; inputs/textareas keep their own focus style below. */
+*:focus,
+*:focus-visible,
+*:focus-within {
+    outline: none !important;
+    -webkit-focus-ring-color: transparent;
+}
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+body {
+    font-family: "Outfit", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+button, input, textarea { font-family: inherit; }
+
+/* Removes Chromium's native OS button theming, which otherwise renders
+   its own platform tap/activation ring independently of the outline
+   rules above — this is what causes a blue flash on tap that vanishes,
+   distinct from a lingering CSS outline. Custom visual styling for
+   buttons is unaffected since every button in this app is already
+   fully restyled via .btn/.btn-icon/etc. */
+button {
+    -webkit-appearance: none;
+    appearance: none;
+    border: 0;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+body::-webkit-scrollbar { display: none; }
+
+.material-symbols-rounded {
+    font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+}
+
+/* ---------------- BUTTONS ---------------- */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 52px;
+    padding: 0 22px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: .98rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-btn-from), var(--primary-btn-to));
+    color: var(--on-primary);
+    box-shadow: var(--shadow-primary);
+}
+.btn-ghost { background: var(--surface-alt); color: var(--text); box-shadow: none; }
+.btn-danger { background: var(--danger); color: var(--on-primary); }
+.btn-outline-danger { background: transparent; color: var(--danger); border: 2px solid var(--danger); }
+.btn-sm { height: 42px; padding: 0 16px; font-size: .88rem; border-radius: var(--radius-sm); }
+.btn-icon {
+    width: 44px; height: 44px; padding: 0; border-radius: 50%;
+    background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text);
+}
+.btn-block { width: 100%; }
+
+/* ---------------- CARDS ---------------- */
+
+.card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+}
+.card-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 4px;
+    cursor: pointer;
+}
+.card-row:active { background: var(--surface-alt); border-radius: var(--radius-md); }
+.card-row-text { flex: 1; min-width: 0; }
+.card-row-title { font-weight: 700; font-size: .98rem; }
+.card-row-sub {
+    color: var(--muted); font-size: .85rem; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-row-meta { color: var(--muted); font-size: .78rem; text-align: right; flex-shrink: 0; }
+
+/* ---------------- INPUTS ---------------- */
+
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.field label { font-size: .92rem; font-weight: 600; }
+.field input, .field textarea, .field select {
+    width: 100%;
+    min-height: 54px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--input-bg);
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: .2s;
+}
+.field textarea { resize: vertical; min-height: 90px; }
+.field input:focus, .field textarea:focus, .field select:focus {
+    outline: none; border-color: var(--primary); box-shadow: 0 0 0 5px var(--primary-soft);
+}
+
+/* ---------------- BADGES ---------------- */
+
+.badge {
+    display: inline-flex; align-items: center; padding: 4px 10px;
+    border-radius: 999px; font-size: .72rem; font-weight: 700;
+    background: var(--surface-alt); color: var(--muted);
+}
+.badge-role { background: var(--primary-soft); color: var(--primary-dark); }
+.badge-owner { background: rgba(255,159,10,.15); color: var(--warning-text); }
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-warning { background: var(--warning-bg); color: var(--warning-text); }
+
+/* ---------------- AVATARS ---------------- */
+
+.avatar {
+    border-radius: 50%; overflow: hidden;
+    flex: 0 0 auto; aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--on-primary); font-weight: 700; background: var(--primary-btn-from);
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-xs { width: 28px; height: 28px; font-size: .7rem; }
+.avatar-sm { width: 38px; height: 38px; font-size: .85rem; }
+.avatar-md { width: 50px; height: 50px; font-size: 1rem; }
+.avatar-lg { width: 64px; height: 64px; font-size: 1.2rem; }
+.avatar-xl { width: 92px; height: 92px; font-size: 1.6rem; margin: 4px auto 6px; }
+/* Fills a .grid-tile-cover as a rounded square instead of the usual
+   small circle — width/height come from the cover container, not a
+   fixed pixel size. */
+.avatar-cover { width: 100%; height: 100%; border-radius: 0; font-size: 2.2rem; }
+
+/* ---------------- EMPTY STATE ---------------- */
+
+.empty-state {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 48px 24px; gap: 10px; color: var(--muted);
+}
+.empty-icon { font-size: 48px; color: var(--primary-light); margin-bottom: 4px; }
+.empty-state h3 { color: var(--text); font-size: 1.1rem; }
+.empty-state p { font-size: .9rem; line-height: 1.5; max-width: 280px; }
+.empty-state .btn { margin-top: 8px; }
+
+/* ---------------- OVERLAY / SHEET / MODAL ---------------- */
+
+.overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: transparent;
+    display: flex; align-items: flex-end; justify-content: center;
+    transition: background .25s ease;
+}
+.overlay.overlay-in { background: var(--scrim); }
+body.no-scroll { overflow: hidden; }
+
+.sheet-panel {
+    width: 100%; max-width: min(var(--sheet-max-width), 100%);
+    margin: 0 auto;
+    box-sizing: border-box;
+    background: var(--surface-raised);
+    border-radius: 28px 28px 0 0;
+    /* Symmetric gutters. Any child that wants to bleed to the edge has
+       to opt in; nothing is allowed to push the panel wider than the
+       screen, which is what caused the create-group / join-school
+       sheets to look shifted to one side on narrow Android screens. */
+    padding: 20px var(--sheet-gutter) max(20px, env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.22,1,.36,1);
+    max-height: 85dvh; overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+/* Nothing inside a sheet or modal may exceed the panel width — this is
+   the single guard that keeps long class names, wide segmented controls
+   and pasted invite codes from widening the layout. */
+.sheet-panel > *, .modal-panel > * { max-width: 100%; min-width: 0; box-sizing: border-box; }
+.sheet-panel input, .sheet-panel textarea, .sheet-panel select,
+.modal-panel input, .modal-panel textarea, .modal-panel select { box-sizing: border-box; max-width: 100%; }
+.overlay-in .sheet-panel { transform: translateY(0); }
+
+/* Full-screen kind: no bottom-sheet gutter, no rounded top, no scrim
+   peeking around the edges — the panel IS the screen. Used by the
+   in-app PDF viewer. */
+.overlay-fullscreen { align-items: stretch; justify-content: stretch; }
+.fullscreen-panel {
+    width: 100%; height: 100%; max-width: 100%; max-height: 100%;
+    margin: 0; padding: 0; border-radius: 0; box-sizing: border-box;
+    background: var(--surface-raised);
+    display: flex; flex-direction: column; overflow: hidden;
+    transform: translateY(100%);
+    transition: transform .28s cubic-bezier(.22,1,.36,1);
+}
+.overlay-in .fullscreen-panel { transform: translateY(0); }
+.fullscreen-panel > * { max-width: 100%; box-sizing: border-box; }
+
+.modal-panel {
+    width: calc(100% - 40px); max-width: min(400px, calc(100% - 32px));
+    box-sizing: border-box;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin: auto;
+    transform: scale(.92); opacity: 0;
+    transition: transform .25s ease, opacity .25s ease;
+}
+.overlay-in .modal-panel { transform: scale(1); opacity: 1; }
+
+.sheet-handle {
+    width: 42px; height: 5px; border-radius: 999px; background: var(--border);
+    margin: 0 auto 18px;
+}
+
+.confirm-dialog h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.confirm-dialog p { color: var(--muted); font-size: .92rem; line-height: 1.5; margin-bottom: 22px; }
+.confirm-actions { display: flex; gap: 10px; }
+.confirm-actions .btn { flex: 1; }
+
+/* profile preview */
+.profile-preview { text-align: center; padding-bottom: 8px; }
+.profile-preview h2 { margin-top: 4px; font-size: 1.3rem; }
+.profile-username { color: var(--muted); font-size: .9rem; margin-top: 2px; }
+.profile-meta { color: var(--muted); font-size: .85rem; margin-top: 8px; }
+.profile-preview-actions { margin-top: 18px; display: flex; gap: 10px; justify-content: center; }
+.profile-preview .badge { margin-top: 10px; }
+
+/* ---------------- TOASTS ---------------- */
+
+.toast-stack {
+    position: fixed; bottom: calc(var(--nav-height) + 16px); left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    z-index: 2000; pointer-events: none; padding: 0 16px;
+}
+.toast {
+    pointer-events: auto;
+    background: #232329; color: #fff; font-size: .88rem; font-weight: 500;
+    padding: 12px 18px; border-radius: 999px; box-shadow: var(--shadow-md);
+    max-width: 90vw; text-align: center;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .25s ease, transform .25s ease;
+}
+.toast-in { opacity: 1; transform: translateY(0); }
+.toast-success { background: #1F6B3A; }
+.toast-error { background: #8C2A24; }
+
+/* ---------------- UPDATE CARD ---------------- */
+/* One shared centered-card look for both the normal (dismissible)
+   and critical (non-dismissible) update prompts - see
+   components/update-popup.js. Rendered via Sheet's "modal" kind,
+   which already supplies the centered/rounded .modal-panel frame;
+   this just styles what goes inside it. */
+
+.update-card { position: relative; text-align: center; padding: 6px 2px 4px; }
+.update-card-close {
+    position: absolute; top: -4px; right: -4px;
+    border: none; background: none; font-size: 24px; color: var(--muted);
+    line-height: 1; padding: 6px; cursor: pointer;
+}
+.update-card-title { font-size: 1.3rem; font-weight: 800; margin: 4px 0 10px; }
+.update-card-text { color: var(--muted); font-size: .92rem; margin-bottom: 18px; line-height: 1.45; }
+.update-card-status { min-height: 20px; font-size: .85rem; color: var(--muted); margin-bottom: 12px; }
+.update-card-status-error { color: #C0392B; }
+.update-card-btn { width: 100%; }
+.update-card-skip {
+    display: block; width: 100%; margin-top: 12px;
+    border: none; background: none; color: var(--muted);
+    font-size: .88rem; font-weight: 600; padding: 6px; cursor: pointer;
+}
+
+/* ---------------- SKELETON LOADING ---------------- */
+
+.skeleton {
+    background: linear-gradient(90deg, var(--surface-alt) 25%, var(--surface-2) 37%, var(--surface-alt) 63%);
+    background-size: 400% 100%;
+    animation: skeleton-shine 1.4s ease infinite;
+    border-radius: var(--radius-sm);
+}
+@keyframes skeleton-shine { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.skeleton-row { display: flex; align-items: center; gap: 12px; padding: 14px 4px; }
+.skeleton-avatar { width: 50px; height: 50px; border-radius: 50%; }
+.skeleton-line { height: 14px; border-radius: 7px; flex: 1; }
+
+/* ---------------- MESSAGE BUBBLES ---------------- */
+/* The full bubble/row implementation (clustering, avatars, reactions)
+   lives in pages/messages/messages.css — this file no longer defines
+   .msg-row/.bubble at all, to avoid the two colliding via CSS
+   specificity. */
+
+.typing-dots { display: inline-flex; gap: 3px; padding: 10px 14px; }
+.typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: typing-bounce 1.2s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: .15s; }
+.typing-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes typing-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+/* DM privacy wall prompt */
+.dm-wall {
+    background: var(--surface-alt); border-radius: var(--radius-md);
+    padding: 14px; margin: 10px 0; text-align: center;
+}
+.dm-wall p { font-size: .85rem; color: var(--muted); margin-bottom: 10px; }
+.dm-wall-actions { display: flex; gap: 8px; justify-content: center; }
+
+/* ---------------- MISC ---------------- */
+
+.section-title {
+    font-size: 1.15rem; font-weight: 800; margin: 6px 4px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.section-title .link { font-size: .85rem; font-weight: 600; color: var(--primary); cursor: pointer; }
+.hidden { display: none !important; }
+.spinner {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 3px solid var(--primary-soft-strong); border-top-color: var(--primary);
+    animation: spin .8s linear infinite;
+}
+.spinner-sm { width: 16px; height: 16px; border-width: 2px; flex-shrink: 0; margin-left: auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* An item mid optimistic-confirmation (a request just accepted/declined,
+   an invite just sent) — visibly "on its way out" so the instant tap
+   registers, without the row just vanishing with no feedback at all. */
+.optimistic-busy { opacity: .35; pointer-events: none; transition: opacity .15s ease; }
+
+/* A card standing in for something still confirming in the background
+   (an upload, an optimistic add) — same shape as the real thing, just
+   visibly "not settled yet" so it doesn't look identical to a normal row. */
+.pending-note { opacity: .65; pointer-events: none; }
+
+/* ---------------- MOTION PREFERENCE (spec §19) ---------------- */
+/* App-wide fallback: every transition/animation collapses to
+   effectively-instant when the user has asked for reduced motion,
+   on top of the individual @media guards already used for the
+   biggest/most visible motion (page transitions, reaction picker,
+   avatar upload pulse). This is a safety net, not a replacement
+   for those — some components rely on a transition *end* event to
+   proceed, so we shorten to near-zero rather than using `none`. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ---------------- SHARED GRID TILES ---------------- */
+/* Generic version of the note-tile shape (see pages/notes/notes.css)
+   for any listing that wants an Instagram-grid look instead of a
+   stacked full-width row list — Schools/Classes/Sections lists can
+   opt in by using these class names instead of .card-row for each
+   item, inside a container with .grid-tiles. */
+
+/* grid-tile-badge is still used by schools.js as the small role-badge
+   on a school row's avatar (see pages/schools/schools.css). Everything
+   else in the old square-tile grid system was reverted back to plain
+   list rows (Notes, Subjects, Chapters, Schools, Classes, Sections all
+   use .card-row/.entity-row now) and has been removed. */
+.grid-tile-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(0, 0, 0, .35); color: #fff;
+    border-radius: 50%; width: 32px; height: 32px;
+    display: grid; place-items: center;
+}
