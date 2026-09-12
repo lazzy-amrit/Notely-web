@@ -48,6 +48,7 @@
     .nav-brand img { width: 30px; height: 30px; border-radius: 8px; }
 
     .nav-item {
+        flex: 0 0 auto;
         flex-direction: row;
         justify-content: flex-start;
         gap: 14px;
@@ -74,7 +75,13 @@
        so capping and centering that single child gives every page a
        consistent, readable column instead of stretching every card,
        list row and form to the full window width. */
-    #app-content > * { width: 100%; max-width: 900px; }
+    /* Correction: several pages actually mount multiple sibling
+       elements into #app-content at once — e.g. notes.js/schools.js
+       do `mount(container, header, list, fab)` — not one wrapped
+       root. The FAB (position:fixed, a self-sized 56px circle) is
+       explicitly excluded below: it isn't page content to center,
+       and capping its width the same way stretched it into an oval. */
+    #app-content > *:not(.fab) { width: 100%; max-width: 900px; }
 
     /* The full-bleed chat thread surface intentionally opts out of the
        centered column (a message thread benefits from more width) but
@@ -84,7 +91,7 @@
         padding: 0;
         margin-left: var(--sidebar-width);
     }
-    #app-content.chat-page > * { max-width: none; }
+    #app-content.chat-page > *:not(.fab) { max-width: none; }
 
     /* The mobile header uses a negative margin to bleed its background
        to the screen edges within a 16px gutter (see styles/app.css).
