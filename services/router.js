@@ -90,7 +90,13 @@ const Router = {
         // leaves the class behind and the next page inherits the
         // full-screen, zero-padding layout meant only for chat.
         container.classList.toggle("chat-page", isChatThread);
-        if (isChatThread) clear(navRoot); else mount(navRoot, BottomNav(section));
+        // Mobile hides the tab bar on a full-bleed chat thread via
+        // body.nav-hidden (styles/app.css); the desktop sidebar layout
+        // (styles/desktop.css) overrides that to stay visible instead,
+        // since a persistent sidebar makes sense at that width. Always
+        // mounting BottomNav and letting CSS decide visibility (instead
+        // of clearing navRoot here) is what makes that possible.
+        mount(navRoot, BottomNav(section));
 
         const handler = this._routes[section];
         if (!handler) {

@@ -4,7 +4,7 @@
 
 (async () => {
     if (typeof Session !== "undefined" && await Session.isLoggedIn()) {
-        window.location.href = "../index.html";
+        window.location.href = "../app.html";
     }
 })();
 
@@ -240,7 +240,7 @@ loginForm.addEventListener("submit", async e => {
         await Session.setTokens(data);
 
         window.location.href =
-            "../index.html";
+            "../app.html";
 
     }
 

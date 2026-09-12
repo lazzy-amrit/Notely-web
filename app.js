@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------
-// app.js — entry point for the post-login shell (index.html)
+// app.js — entry point for the post-login shell (app.html)
 // ------------------------------------------------------------------
 
 // Registers sw.js for instant repeat loads + add-to-homescreen

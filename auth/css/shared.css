@@ -79,3 +79,28 @@
 @keyframes auth-notice-spin {
     to { transform: rotate(360deg); }
 }
+
+/* ---------------- DESKTOP/TABLET CENTERING ----------------
+   Every auth page's own CSS (login.css, register.css, etc.) lays out
+   `.screen` as a full-height, full-width column with no max-width —
+   fine on a phone, but on a wide window it stretched the form and
+   inputs edge-to-edge. This centers the same `.screen` as a fixed-
+   width card instead, without touching any per-page layout rule. */
+@media (min-width: 640px) {
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100dvh;
+    }
+    .screen {
+        width: 100%;
+        max-width: 440px;
+        min-height: auto;
+        margin: 32px auto;
+        padding: 40px 36px;
+        border-radius: 28px;
+        background: var(--surface);
+        box-shadow: 0 20px 60px rgba(20, 20, 40, .10);
+    }
+}

@@ -10,7 +10,7 @@
 // runtime host-recovery/override mechanism.
 // ------------------------------------------------------------------
 
-const DEFAULT_API_HOST = "https://notely-backend-production-75cd.up.railway.app";
+const DEFAULT_API_HOST = "https://notely-backend-production-c913.up.railway.app";
 
 const CONFIG = {
     API_HOST: DEFAULT_API_HOST,

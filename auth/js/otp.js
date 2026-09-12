@@ -189,7 +189,7 @@ function showSuccess({ title, body, small }) {
 function goToDashboard() {
     Memory.remove("verification");
     Memory.remove("role");
-    window.location.replace("../index.html");
+    window.location.replace("../app.html");
 }
 
 verifyBtn.addEventListener("click", async () => {

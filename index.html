@@ -3,11 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Notely</title>
+
+<title>Notely — Notes and class chat for schools</title>
+<meta name="description" content="Notely keeps a school's classes, subjects, notes and chat in one place. Teachers share notes and PDFs by subject, students find everything instantly, and classes get their own group chat. Free to get started.">
+<link rel="canonical" href="https://notely-edu.pages.dev/">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Notely — Notes and class chat for schools">
+<meta property="og:description" content="Class notes, subject PDFs and group chat, organized by school, class and subject. Built for teachers and students.">
+<meta property="og:image" content="https://notely-edu.pages.dev/assets/images/logo-512.png">
+<meta property="og:url" content="https://notely-edu.pages.dev/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Notely — Notes and class chat for schools">
+<meta name="twitter:description" content="Class notes, subject PDFs and group chat, organized by school, class and subject.">
+<meta name="twitter:image" content="https://notely-edu.pages.dev/assets/images/logo-512.png">
+
 <link rel="icon" type="image/png" href="assets/images/logo.png">
 <link rel="apple-touch-icon" href="assets/images/logo.png">
-<!-- Lets the site be added to a phone's home screen and open
-     full-screen like an app. -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7B61FF">
 
@@ -16,81 +29,162 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0..1,0">
 
-<!-- PDF.js: renders note PDFs onto <canvas> in the full-screen in-app
-     viewer (utils/pdf-viewer.js). Loaded from a CDN since this project
-     has no bundler; legacy build for broader Android WebView support. -->
-<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<link rel="stylesheet" href="landing.css">
 
-<link rel="stylesheet" href="styles/variables.css">
-<link rel="stylesheet" href="styles/global.css">
-<link rel="stylesheet" href="styles/app.css">
-<link rel="stylesheet" href="pages/messages/messages.css">
-<link rel="stylesheet" href="pages/notes/notes.css">
-<link rel="stylesheet" href="pages/schools/schools.css">
-<link rel="stylesheet" href="pages/profile/profile.css">
-<link rel="stylesheet" href="pages/home/home.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Notely",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Web",
+  "description": "Notely keeps a school's classes, subjects, notes and chat in one place for teachers and students.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
 </head>
-<body>
+<body class="auth-check">
+<div class="site">
 
-<div id="app">
-    <div id="app-content"></div>
-    <div id="nav-root"></div>
+    <nav class="site-nav">
+        <div class="wrap">
+            <a class="brand" href="#top">
+                <img src="assets/images/logo.png" alt="">
+                Notely
+            </a>
+            <div class="nav-actions">
+                <a class="btn btn-ghost" href="auth/login.html">Log in</a>
+                <a class="btn btn-primary" href="auth/register.html">Get started</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero" id="top">
+        <div class="wrap">
+            <div class="hero-copy">
+                <span class="eyebrow">Built for schools</span>
+                <h1>All your class notes and chat, <span>finally in one place</span>.</h1>
+                <p class="lede">
+                    Notely organizes every school by class and subject — teachers post notes and PDFs
+                    where students can actually find them, and every class gets its own group chat.
+                </p>
+                <div class="hero-ctas">
+                    <a class="btn btn-primary btn-lg" href="auth/register.html">
+                        <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                        Get started free
+                    </a>
+                    <a class="btn btn-ghost btn-lg" href="auth/login.html">I already have an account</a>
+                </div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+                <img src="assets/images/teacher.png" alt="">
+                <img src="assets/images/student.png" alt="">
+            </div>
+        </div>
+    </header>
+
+    <section class="stats">
+        <div class="wrap">
+            <div class="stat"><b>Schools</b><span>Organized by class &amp; subject</span></div>
+            <div class="stat"><b>Notes</b><span>Shared as searchable PDFs</span></div>
+            <div class="stat"><b>Chat</b><span>Built into every class</span></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="wrap">
+            <div class="section-head">
+                <h2>Everything a class needs, nothing it doesn't</h2>
+                <p>No more scattered PDFs in five different group chats.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span></div>
+                    <h3>Notes, organized by subject</h3>
+                    <p>Photos or files become clean, readable PDFs, filed under the right class and subject automatically.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span></div>
+                    <h3>A group chat for every class</h3>
+                    <p>Announcements, questions and discussion stay with the class they belong to — plus DMs for one-on-one.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">school</span></div>
+                    <h3>Real school structure</h3>
+                    <p>Schools, classes and subjects mirror how a school actually works, so nothing needs to be reinvented.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">star</span></div>
+                    <h3>Star what matters</h3>
+                    <p>Save key notes and chats for instant access later — no more scrolling back through weeks of messages.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">devices</span></div>
+                    <h3>Works everywhere</h3>
+                    <p>Phone, tablet, or a full-size desktop — the same account, kept in sync.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">bolt</span></div>
+                    <h3>Free to get started</h3>
+                    <p>Create your school or join one in a couple of minutes — no setup required.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="wrap">
+            <div class="section-head">
+                <h2>Built for both sides of the classroom</h2>
+            </div>
+            <div class="audience-grid">
+                <div class="audience-card">
+                    <img src="assets/images/teacher.png" alt="">
+                    <h3>For teachers</h3>
+                    <p>Share notes once, with the class they're meant for.</p>
+                    <ul>
+                        <li>Post notes and PDFs straight to a subject</li>
+                        <li>Message the whole class or one student</li>
+                        <li>Keep every subject's materials organized</li>
+                    </ul>
+                </div>
+                <div class="audience-card">
+                    <img src="assets/images/student.png" alt="">
+                    <h3>For students</h3>
+                    <p>Stop hunting through chats for the one PDF you need.</p>
+                    <ul>
+                        <li>Find notes by class and subject, instantly</li>
+                        <li>Star the ones you'll need again</li>
+                        <li>Ask questions in the class chat</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-band">
+        <h2>Ready to get your class organized?</h2>
+        <p>It takes a couple of minutes to set up.</p>
+        <a class="btn btn-ghost btn-lg" href="auth/register.html">Create your free account</a>
+    </section>
+
+    <footer class="site-footer">
+        <div class="wrap">
+            <div class="footer-copy">&copy; <span id="year"></span> Notely. All rights reserved.</div>
+            <div class="footer-links">
+                <a href="app.html#/policies/about">About</a>
+                <a href="app.html#/policies/terms">Terms</a>
+                <a href="app.html#/policies/privacy">Privacy</a>
+                <a href="auth/login.html">Log in</a>
+            </div>
+        </div>
+    </footer>
+
 </div>
 
-<!-- Core -->
-<!-- Theme first: sets data-theme on <html> before first paint so a
-     dark-mode launch never flashes the light palette. -->
-<script src="services/theme.js"></script>
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 <script src="api/config.js"></script>
-<script src="utils/file-compression.js"></script>
 <script src="services/session.js"></script>
-<script src="services/cache.js"></script>
-<script src="api/http.js"></script>
-<script src="services/storage.js"></script>
-<script src="api/auth.js"></script>
-<script src="api/schools.js"></script>
-<script src="api/classes.js"></script>
-<script src="api/subjects.js"></script>
-<script src="api/groups.js"></script>
-<script src="api/users.js"></script>
-<script src="api/messages.js"></script>
-<script src="api/notes.js"></script>
-<script src="api/stars.js"></script>
-<script src="api/notifications.js"></script>
-
-<script src="utils/dom.js"></script>
-<script src="utils/optimistic.js"></script>
-<script src="utils/images-to-pdf.js"></script>
-<script src="utils/pdf-viewer.js"></script>
-<script src="utils/format.js"></script>
-<script src="utils/entity-cache.js"></script>
-
-<script src="services/toast.js"></script>
-<script src="services/sheet.js"></script>
-<script src="services/websocket.js"></script>
-<script src="services/router.js"></script>
-<script src="services/membership.js"></script>
-<script src="services/notifications.js"></script>
-
-<script src="components/avatar.js"></script>
-<script src="components/empty-state.js"></script>
-<script src="components/confirm.js"></script>
-<script src="components/tiny-menu.js"></script>
-<script src="components/profile-preview.js"></script>
-<script src="components/bottom-nav.js"></script>
-
-<!-- Pages -->
-<script src="pages/home/home.js"></script>
-<script src="pages/messages/messages.js"></script>
-<script src="pages/messages/chat.js"></script>
-<script src="pages/messages/dm-search.js"></script>
-<script src="pages/notes/notes.js"></script>
-<script src="pages/schools/subjects.js"></script>
-<script src="pages/schools/schools.js"></script>
-<script src="pages/profile/profile.js"></script>
-<script src="pages/policies/policies.js"></script>
-
-<script src="app.js"></script>
-
+<script src="landing.js"></script>
 </body>
 </html>

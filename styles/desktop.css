@@ -1,0 +1,111 @@
+/* ------------------------------------------------------------------
+   Desktop/tablet layout for the app shell (app.html).
+   Mobile layout (styles/app.css) is untouched below this breakpoint —
+   this file only adds min-width overrides on top of it:
+     - the bottom tab bar becomes a fixed left sidebar
+     - #app-content stops stretching edge-to-edge and becomes a
+       centered, max-width reading column
+     - the FAB and header shift to match
+   Nothing here changes markup requirements; components/bottom-nav.js
+   renders the same <nav class="bottom-nav"> either way.
+------------------------------------------------------------------ */
+
+/* The sidebar brand (logo + "Notely") only exists for the desktop
+   sidebar below — on the mobile bottom bar it must not render at all,
+   or it'd show up as a stray extra item in that flex row. */
+.nav-brand { display: none; }
+
+@media (min-width: 900px) {
+    :root { --sidebar-width: 250px; }
+
+    /* ---------------- SIDEBAR NAV ---------------- */
+    .bottom-nav {
+        position: fixed;
+        top: 0; left: 0; bottom: 0; right: auto;
+        width: var(--sidebar-width);
+        height: 100vh;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 2px;
+        padding: 20px 14px 24px;
+        box-shadow: none;
+        border-right: 1px solid var(--border);
+    }
+    /* Keep the sidebar visible even on the full-bleed chat-thread
+       surface — on a wide screen there's no reason to lose navigation
+       just because a thread is open (see services/router.js, which
+       always mounts BottomNav now and lets nav-hidden control mobile
+       visibility only). */
+    body.nav-hidden .bottom-nav { display: flex; }
+    body.nav-hidden #app-content.chat-page { margin-left: var(--sidebar-width); }
+
+    .nav-brand {
+        display: flex; align-items: center; gap: 10px;
+        padding: 6px 10px 22px;
+        font-size: 1.25rem; font-weight: 800; color: var(--primary);
+    }
+    .nav-brand img { width: 30px; height: 30px; border-radius: 8px; }
+
+    .nav-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 14px;
+        padding: 12px 14px;
+        border-radius: var(--radius-md);
+        font-size: .92rem;
+        text-align: left;
+    }
+    .nav-item .material-symbols-rounded { font-size: 22px; }
+    .nav-item:hover { background: var(--surface-alt); }
+    .nav-item.active { background: var(--primary-soft); }
+    .nav-badge { top: 10px; right: auto; left: 34px; }
+
+    /* ---------------- HEADER + CONTENT ---------------- */
+    #app-content {
+        margin-left: var(--sidebar-width);
+        padding: 28px 40px 48px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    /* The router mounts exactly one root element per page into
+       #app-content (see services/router.js `mount(container, ...)`),
+       so capping and centering that single child gives every page a
+       consistent, readable column instead of stretching every card,
+       list row and form to the full window width. */
+    #app-content > * { width: 100%; max-width: 900px; }
+
+    /* The full-bleed chat thread surface intentionally opts out of the
+       centered column (a message thread benefits from more width) but
+       still respects the sidebar. */
+    #app-content.chat-page {
+        display: block;
+        padding: 0;
+        margin-left: var(--sidebar-width);
+    }
+    #app-content.chat-page > * { max-width: none; }
+
+    /* The mobile header uses a negative margin to bleed its background
+       to the screen edges within a 16px gutter (see styles/app.css).
+       That trick doesn't apply inside a centered, padded column, so
+       it's simply turned off here. */
+    .app-header {
+        margin: 0 0 10px;
+        padding: 10px 0 6px;
+    }
+
+    /* No bottom tab bar to clear anymore. */
+    .fab {
+        bottom: 28px;
+        right: max(28px, calc((100vw - var(--sidebar-width) - 900px) / 2 + 12px));
+    }
+    body.nav-hidden .fab { bottom: 28px; }
+}
+
+/* Slightly narrower sidebar on the smaller edge of "desktop" so it
+   doesn't eat too much of a 900-1100px tablet/laptop window. */
+@media (min-width: 900px) and (max-width: 1150px) {
+    :root { --sidebar-width: 210px; }
+    .nav-brand { font-size: 1.1rem; }
+}

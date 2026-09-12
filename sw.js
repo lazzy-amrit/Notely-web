@@ -22,12 +22,15 @@
 //     load after the first being instant.
 // ------------------------------------------------------------------
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = `notely-web-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
     "./",
     "index.html",
+    "app.html",
+    "landing.js",
+    "landing.css",
     "services/theme.js",
     "api/config.js",
     "utils/file-compression.js",
@@ -44,7 +47,6 @@ const PRECACHE_URLS = [
     "api/messages.js",
     "api/notes.js",
     "api/stars.js",
-    "api/updates.js",
     "api/notifications.js",
     "utils/dom.js",
     "utils/optimistic.js",
@@ -63,7 +65,6 @@ const PRECACHE_URLS = [
     "components/confirm.js",
     "components/tiny-menu.js",
     "components/profile-preview.js",
-    "components/update-popup.js",
     "components/bottom-nav.js",
     "pages/home/home.js",
     "pages/home/home.css",
@@ -83,6 +84,7 @@ const PRECACHE_URLS = [
     "styles/variables.css",
     "styles/global.css",
     "styles/app.css",
+    "styles/desktop.css",
     "assets/images/logo.png",
     "manifest.json",
 ];
