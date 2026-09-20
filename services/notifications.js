@@ -126,6 +126,64 @@ const NotificationService = {
         WS.on("notification", data => {
             if (data?.type === "dm_request" || data?.type === "message_request") handleRequest(data);
         });
+
+        WS.on("dm_request_updated", data => {
+            const name = data.target_name || data.target_username || "Someone";
+            this.add({
+                id: this._eventId("dm_request_updated", data.request_id, data.status),
+                type: "dm_request_updated",
+                title: `${name} ${data.status} your message request`,
+                body: data.status === "accepted" ? "You can chat now." : "",
+                icon: data.status === "accepted" ? "check_circle" : "cancel",
+                route: data.status === "accepted" ? `messages/dm/${data.target_id}` : null,
+            });
+        });
+
+        WS.on("group_invite_updated", data => {
+            const name = data.target_name || data.target_username || "Someone";
+            const group = EntityCache.getGroup(data.group_id);
+            this.add({
+                id: this._eventId("group_invite_updated", data.invite_id, data.status),
+                type: "group_invite_updated",
+                title: `${name} ${data.status} your invite to ${group?.name || "the group"}`,
+                body: "",
+                icon: data.status === "accepted" ? "check_circle" : "cancel",
+                route: `messages/group/${data.group_id}`,
+            });
+        });
+
+        WS.on("group_deleted", data => {
+            const group = EntityCache.getGroup(data.group_id);
+            this.add({
+                id: this._eventId("group_deleted", data.group_id, `${Date.now()}`),
+                type: "group_deleted",
+                title: `${group?.name || "A group"} was deleted`,
+                body: "",
+                icon: "delete",
+            });
+        });
+
+        WS.on("removed_from_group", data => {
+            const group = EntityCache.getGroup(data.group_id);
+            this.add({
+                id: this._eventId("removed_from_group", data.group_id, `${Date.now()}`),
+                type: "removed_from_group",
+                title: `You were removed from ${group?.name || "a group"}`,
+                body: "",
+                icon: "group_remove",
+            });
+        });
+
+        WS.on("added_to_group", data => {
+            this.add({
+                id: this._eventId("added_to_group", data.group_id, `${Date.now()}`),
+                type: "added_to_group",
+                title: `You were added to ${data.group_name || "a group"}`,
+                body: "Tap to open it.",
+                icon: "group_add",
+                route: `messages/group/${data.group_id}`,
+            });
+        });
     },
 
     // Defaults on: only an explicit "0" written by setVibrateEnabled turns

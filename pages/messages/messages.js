@@ -65,6 +65,22 @@ const MessagesPage = {
         const refreshBadges = () => this._renderInbox(listWrap, groups, dms, currentQuery());
         this._unsubs.push(WS.on("group_message", refreshBadges));
         this._unsubs.push(WS.on("direct_message", refreshBadges));
+        this._unsubs.push(WS.on("group_deleted", data => {
+            groups = groups.filter(g => String(g.id) !== String(data.group_id));
+            refreshBadges();
+        }));
+        this._unsubs.push(WS.on("removed_from_group", data => {
+            groups = groups.filter(g => String(g.id) !== String(data.group_id));
+            refreshBadges();
+        }));
+        this._unsubs.push(WS.on("added_to_group", async data => {
+            try {
+                const group = await GroupsApi.detail(data.group_id);
+                EntityCache.rememberGroup(group);
+                groups = [group, ...groups.filter(g => String(g.id) !== String(group.id))];
+                refreshBadges();
+            } catch { /* it'll show up next time this list is opened */ }
+        }));
         const onUnreadChanged = () => refreshBadges();
         document.addEventListener("notely:unread-changed", onUnreadChanged);
         this._unsubs.push(() => document.removeEventListener("notely:unread-changed", onUnreadChanged));

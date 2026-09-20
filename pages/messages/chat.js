@@ -10,7 +10,7 @@ const ChatPage = {
     },
 
     async renderGroup(container, groupId) {
-        this._cleanup(); this._mode = "group"; this._id = groupId; this._lastMsgKey = null; this._lastTheirsAvatarSlot = null;
+        this._cleanup(); this._container = container; this._mode = "group"; this._id = groupId; this._lastMsgKey = null; this._lastTheirsAvatarSlot = null;
         this._hasMoreHistory = true; this._loadingOlder = false; this._oldestLoadedId = null; this._topMsgKey = null; this._topTheirsAvatarSlot = null;
         NotificationService?.markConversationRead?.("group", groupId);
         let group = EntityCache.getGroup(groupId);
@@ -41,10 +41,31 @@ const ChatPage = {
             if (String(data.group_id) !== String(groupId)) return;
             this._applyReactions(data.message_id, data.reactions);
         }));
+        this._unsubs.push(WS.on("message_deleted", data => {
+            if (String(data.group_id) !== String(groupId)) return;
+            this._removeMessageRow(data.message_id);
+        }));
+        this._unsubs.push(WS.on("role_updated", data => {
+            if (String(data.group_id) !== String(groupId)) return;
+            Toast.show(`Your role in this group is now ${data.role}`);
+            // Re-render the whole shell so an announcement-group composer
+            // shows/hides correctly for the new role, without a manual reload.
+            this.renderGroup(this._container, groupId);
+        }));
+        this._unsubs.push(WS.on("group_deleted", data => {
+            if (String(data.group_id) !== String(groupId)) return;
+            Toast.show("This group was deleted");
+            Router.goBack("messages");
+        }));
+        this._unsubs.push(WS.on("removed_from_group", data => {
+            if (String(data.group_id) !== String(groupId)) return;
+            Toast.show("You were removed from this group");
+            Router.goBack("messages");
+        }));
     },
 
     async renderDm(container, otherUserId) {
-        this._cleanup(); this._mode = "dm"; this._id = otherUserId; this._lastMsgKey = null; this._lastTheirsAvatarSlot = null; this._dmUser = null;
+        this._cleanup(); this._container = container; this._mode = "dm"; this._id = otherUserId; this._lastMsgKey = null; this._lastTheirsAvatarSlot = null; this._dmUser = null;
         this._hasMoreHistory = true; this._loadingOlder = false; this._oldestLoadedId = null; this._topMsgKey = null; this._topTheirsAvatarSlot = null;
         NotificationService?.markConversationRead?.("dm", otherUserId);
         let user = EntityCache.getUser(otherUserId);
@@ -68,6 +89,11 @@ const ChatPage = {
             if (data.group_id) return;
             if (String(data.sender_id) !== String(otherUserId) && String(data.receiver_id) !== String(otherUserId)) return;
             this._applyReactions(data.message_id, data.reactions);
+        }));
+        this._unsubs.push(WS.on("message_deleted", data => {
+            if (data.group_id) return;
+            if (String(data.sender_id) !== String(otherUserId) && String(data.receiver_id) !== String(otherUserId)) return;
+            this._removeMessageRow(data.message_id);
         }));
     },
 
