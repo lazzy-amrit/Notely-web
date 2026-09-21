@@ -269,11 +269,7 @@ const ProfilePage = {
     // Email lives here (Settings > Update email), not in Edit profile and
     // not on the profile page. Uses the existing PATCH /auth/profile.
 
-    async _openUpdateEmail() {
-        const cached = await Session.getUser();
-        let currentEmail = cached?.email || "";
-
-        const currentBox = h("div", { className: "email-current" }, currentEmail || "Loading...");
+    _openUpdateEmail() {
         const newEmailField = h("input", {
             type: "email",
             placeholder: "Enter new email address",
@@ -286,7 +282,6 @@ const ProfilePage = {
         const submit = async () => {
             const next = newEmailField.value.trim().toLowerCase();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next)) { Toast.error("Enter a valid email address"); return; }
-            if (currentEmail && next === currentEmail.toLowerCase()) { Toast.error("That's already your current email"); return; }
             btn.disabled = true; btn.textContent = "Updating...";
             try {
                 await AuthApi.updateEmail(next);
@@ -304,18 +299,10 @@ const ProfilePage = {
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
             h("h3", { style: "margin-bottom:14px" }, "Update email"),
-            h("div", { className: "field" }, [h("label", {}, "Current email"), currentBox]),
             h("div", { className: "field" }, [h("label", {}, "New email"), newEmailField]),
             btn,
         ]));
-
-        // Cached user can be empty right after login; fill the box as soon as /auth/me answers.
-        if (!currentEmail) {
-            AuthApi.me().then((u) => {
-                currentEmail = u?.email || "";
-                currentBox.textContent = currentEmail || "Not available";
-            }).catch(() => { currentBox.textContent = "Couldn't load, check your connection"; });
-        }
+        setTimeout(() => newEmailField.focus(), 250);
     },
 
     _openChangePassword() {
