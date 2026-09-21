@@ -266,22 +266,14 @@ const ProfilePage = {
 
 
     // ---------------- UPDATE EMAIL ----------------
-    // Standard "change email" flow: the current address is shown masked
-    // (never in full), the user types the new one, we email a 6-digit
-    // code to the NEW address, and the change only applies once that
-    // code is confirmed. Email is intentionally not part of Edit profile.
-
-    _maskEmail(email) {
-        const [local = "", domain = ""] = String(email || "").split("@");
-        if (!local || !domain) return "—";
-        const visible = local.slice(0, local.length > 3 ? 2 : 1);
-        return `${visible}•••••@${domain}`;
-    },
+    // Email lives here (Settings > Update email), not in Edit profile and
+    // not on the profile page. Uses the existing PATCH /auth/profile.
 
     async _openUpdateEmail() {
-        const user = await Session.getUser();
-        const currentEmail = user?.email || "";
+        const cached = await Session.getUser();
+        let currentEmail = cached?.email || "";
 
+        const currentBox = h("div", { className: "email-current" }, currentEmail || "Loading...");
         const newEmailField = h("input", {
             type: "email",
             placeholder: "Enter new email address",
@@ -289,20 +281,21 @@ const ProfilePage = {
             inputmode: "email",
             autocapitalize: "none",
         });
-        const btn = h("button", { className: "btn btn-primary btn-block" }, "Send verification code");
+        const btn = h("button", { className: "btn btn-primary btn-block" }, "Update email");
 
         const submit = async () => {
             const next = newEmailField.value.trim().toLowerCase();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next)) { Toast.error("Enter a valid email address"); return; }
             if (currentEmail && next === currentEmail.toLowerCase()) { Toast.error("That's already your current email"); return; }
-            btn.disabled = true; btn.textContent = "Sending...";
+            btn.disabled = true; btn.textContent = "Updating...";
             try {
-                await AuthApi.requestEmailChange(next);
+                await AuthApi.updateEmail(next);
+                Toast.success("Email updated");
                 Sheet.close();
-                this._openVerifyNewEmail(next);
+                AuthApi.me().catch(() => { /* cache already invalidated; next load refreshes */ });
             } catch (err) {
                 Toast.fromApiError(err);
-                btn.disabled = false; btn.textContent = "Send verification code";
+                btn.disabled = false; btn.textContent = "Update email";
             }
         };
         btn.addEventListener("click", submit);
@@ -310,94 +303,19 @@ const ProfilePage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("h3", { style: "margin-bottom:6px" }, "Update email"),
-            h("p", { className: "sheet-copy" }, "We'll send a verification code to your new email to confirm it's yours."),
-            h("div", { className: "field" }, [
-                h("label", {}, "Current email"),
-                h("div", { className: "email-current" }, currentEmail ? this._maskEmail(currentEmail) : "—"),
-            ]),
+            h("h3", { style: "margin-bottom:14px" }, "Update email"),
+            h("div", { className: "field" }, [h("label", {}, "Current email"), currentBox]),
             h("div", { className: "field" }, [h("label", {}, "New email"), newEmailField]),
             btn,
         ]));
-    },
 
-    _openVerifyNewEmail(newEmail) {
-        let timer = null;
-        const otpField = h("input", {
-            type: "text",
-            inputmode: "numeric",
-            autocomplete: "one-time-code",
-            maxlength: "6",
-            placeholder: "6-digit code",
-            className: "email-otp-input",
-        });
-        const verifyBtn = h("button", { className: "btn btn-primary btn-block", disabled: "true" }, "Verify and update");
-        const resendBtn = h("button", { className: "btn btn-ghost btn-sm btn-block", style: "margin-top:10px" }, "Resend code");
-
-        const startCooldown = (seconds) => {
-            clearInterval(timer);
-            let left = seconds;
-            resendBtn.disabled = true;
-            resendBtn.textContent = `Resend code in ${left}s`;
-            timer = setInterval(() => {
-                left -= 1;
-                if (left <= 0) {
-                    clearInterval(timer);
-                    resendBtn.disabled = false;
-                    resendBtn.textContent = "Resend code";
-                } else {
-                    resendBtn.textContent = `Resend code in ${left}s`;
-                }
-            }, 1000);
-        };
-
-        otpField.addEventListener("input", () => {
-            otpField.value = otpField.value.replace(/\D/g, "").slice(0, 6);
-            verifyBtn.disabled = otpField.value.length !== 6;
-        });
-
-        verifyBtn.addEventListener("click", async () => {
-            verifyBtn.disabled = true; verifyBtn.textContent = "Verifying...";
-            try {
-                await AuthApi.confirmEmailChange(newEmail, otpField.value);
-                Toast.success("Email updated");
-                Sheet.close();
-                AuthApi.me().catch(() => { /* cache already invalidated; next load refreshes */ });
-            } catch (err) {
-                Toast.fromApiError(err);
-                verifyBtn.disabled = otpField.value.length !== 6;
-                verifyBtn.textContent = "Verify and update";
-            }
-        });
-
-        resendBtn.addEventListener("click", async () => {
-            resendBtn.disabled = true;
-            try {
-                await AuthApi.requestEmailChange(newEmail);
-                Toast.success("A new code was sent");
-                startCooldown(30);
-            } catch (err) {
-                Toast.fromApiError(err);
-                resendBtn.disabled = false;
-            }
-        });
-
-        startCooldown(30);
-
-        Sheet.open(h("div", {}, [
-            h("div", { className: "sheet-handle" }),
-            h("h3", { style: "margin-bottom:6px" }, "Verify your new email"),
-            h("p", { className: "sheet-copy" }, `Enter the 6-digit code we sent to ${this._maskEmail(newEmail)}.`),
-            h("div", { className: "field" }, [otpField]),
-            verifyBtn,
-            resendBtn,
-            h("button", {
-                className: "btn-link-quiet",
-                type: "button",
-                onClick: () => { Sheet.close(); this._openUpdateEmail(); },
-            }, "Use a different email"),
-        ]), { onClose: () => clearInterval(timer) });
-        setTimeout(() => otpField.focus(), 250);
+        // Cached user can be empty right after login; fill the box as soon as /auth/me answers.
+        if (!currentEmail) {
+            AuthApi.me().then((u) => {
+                currentEmail = u?.email || "";
+                currentBox.textContent = currentEmail || "Not available";
+            }).catch(() => { currentBox.textContent = "Couldn't load, check your connection"; });
+        }
     },
 
     _openChangePassword() {

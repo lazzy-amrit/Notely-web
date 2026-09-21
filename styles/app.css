@@ -144,7 +144,7 @@
     width: 56px; height: 56px; border-radius: 50%; border: none; padding: 0;
     cursor: pointer;
     background: linear-gradient(135deg, var(--primary-btn-from), var(--primary-btn-to));
-    color: var(--on-primary); box-shadow: var(--shadow-primary);
+    color: var(--on-primary); box-shadow: none;
     display: flex; align-items: center; justify-content: center; z-index: 90;
 }
 .fab .material-symbols-rounded { font-size: 28px; }

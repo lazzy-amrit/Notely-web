@@ -207,3 +207,4 @@ const CacheService = {
 
 window.CacheService = CacheService;
 window.CACHE_EVENT = CACHE_EVENT;
+window.APP_CACHE_VERSION = APP_CACHE_VERSION;

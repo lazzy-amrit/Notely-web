@@ -22,6 +22,9 @@ body { min-height:100vh; background:var(--bg); }
 .legal-section h2 { font-size:1rem; margin-bottom:8px; }
 .legal-section p, .legal-section li { line-height:1.65; }
 .legal-section ul { padding-left:20px; }
+.legal-nav { display:flex; flex-wrap:wrap; gap:6px 18px; justify-content:center; margin-top:22px; }
+.legal-nav a { color:var(--muted); font-size:.88rem; font-weight:600; text-decoration:none; }
+.legal-nav a:hover { color:var(--primary); }
 </style>
 </head>
 <body>
@@ -31,6 +34,13 @@ body { min-height:100vh; background:var(--bg); }
     <h1 id="title">Notely</h1>
   </header>
   <article class="legal-card" id="content"></article>
+  <nav class="legal-nav" aria-label="Policies">
+    <a href="policy.html?doc=about">About</a>
+    <a href="policy.html?doc=terms">Terms</a>
+    <a href="policy.html?doc=privacy">Privacy</a>
+    <a href="policy.html?doc=support">Support</a>
+    <a href="index.html">Home</a>
+  </nav>
 </main>
 <script src="services/theme.js"></script>
 <script src="api/config.js"></script>
@@ -55,7 +65,7 @@ body { min-height:100vh; background:var(--bg); }
     if (sec.bullets?.length) { const ul=document.createElement("ul"); sec.bullets.forEach(text => { const li=document.createElement("li"); li.textContent=text; ul.appendChild(li); }); section.appendChild(ul); }
     root.appendChild(section);
   });
-  document.getElementById("back").addEventListener("click", () => history.length > 1 ? history.back() : location.href="auth/register.html");
+  document.getElementById("back").addEventListener("click", () => history.length > 1 ? history.back() : location.href="index.html");
 })();
 </script>
 </body>

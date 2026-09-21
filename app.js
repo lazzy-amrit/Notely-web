@@ -9,13 +9,13 @@ if ("serviceWorker" in navigator) {
 }
 
 (async function bootstrap() {
-    // Policies must be readable without an account (they're linked from
-    // the sign-up screen), so this route bypasses the login gate below
-    // entirely rather than bouncing straight to auth/login.html.
+    // Policies are public. A logged-out visitor who lands on an in-app
+    // policies URL gets the standalone policy page instead of the app
+    // shell (its nav buttons need a login and would just fail).
     const bootHash = location.hash.replace(/^#\/?/, "");
-    if (bootHash.startsWith("policies")) {
-        Router.register("policies", (c, p) => PoliciesPage.render(c, p));
-        Router.start();
+    if (bootHash.startsWith("policies") && !(await Session.isLoggedIn())) {
+        const doc = bootHash.split("/")[1] || "terms";
+        location.replace(`policy.html?doc=${encodeURIComponent(doc)}`);
         return;
     }
 

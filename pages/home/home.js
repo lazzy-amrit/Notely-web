@@ -32,37 +32,128 @@ const HomePage = {
             ]),
         ]);
 
-        mount(container, topBar, header, quickActions,
-            h("div", { className: "skeleton-row" }, [h("div", { className: "skeleton skeleton-avatar" }), h("div", { className: "skeleton skeleton-line" })]));
+        const body = h("div", { id: "home-body" });
+        mount(container, topBar, header, quickActions, body);
         NotificationService.syncBadge();
 
-        // These five are all CacheService-backed GETs — a repeat visit
-        // paints from the on-device cache instantly and refreshes behind
-        // the scenes, so this normally isn't a real wait at all. What
-        // used to make this screen crawl was below: per-group message
-        // history fetches gating the very first paint. Those are now
-        // fully decoupled — see _upgradeRecent below.
-        const [schoolsResult, groupsResult, invitesResult, dmRequestsResult, dmsResult] = await Promise.allSettled([
-            SchoolsApi.dashboard(),
-            GroupsApi.list(),
-            GroupsApi.invites(),
-            MessagesApi.getPendingDmRequests(),
-            MessagesApi.listDirectThreads(),
-        ]);
+        // Stale-while-revalidate for the whole dashboard:
+        //  1. paint instantly from the last snapshot we saved on this device
+        //     (survives cache invalidation after mutations, unlike the
+        //     per-request cache), so nothing waits on the network;
+        //  2. fire all five requests independently — each one updates just
+        //     its own part of the screen the moment it lands;
+        //  3. also listen for background cache refreshes, so data that was
+        //     served stale gets swapped in when the fresh copy arrives.
+        const snap = this._loadSnapshot();
+        const state = {
+            schools: snap?.schools ?? null,
+            groups: snap?.groups ?? null,
+            invites: snap?.invites ?? null,
+            dmRequests: snap?.dmRequests ?? null,
+            dms: snap?.dms ?? null,
+            recent: snap?.recent || {},
+        };
+        const alive = () => body.isConnected;
+        const persist = () => this._saveSnapshot(state);
 
-        const schools = schoolsResult.status === "fulfilled" ? schoolsResult.value : [];
-        const groups = groupsResult.status === "fulfilled" ? groupsResult.value : [];
-        const invites = invitesResult.status === "fulfilled" ? invitesResult.value : [];
-        const dmRequests = dmRequestsResult.status === "fulfilled" ? dmRequestsResult.value : [];
-        const dms = dmsResult.status === "fulfilled" ? (dmsResult.value || []) : [];
-        groups.forEach(g => EntityCache.rememberGroup(g));
-        dms.forEach(u => EntityCache.rememberUser(u));
+        let raf = 0;
+        let upgradeSig = "";
+        const schedule = () => {
+            if (raf) return;
+            raf = requestAnimationFrame(() => {
+                raf = 0;
+                if (!alive()) return;
+                this._paint(body, state, persist);
+                const sig = (state.groups || []).slice(0, 8).map(g => g.id).join(",");
+                if (sig !== upgradeSig) {
+                    upgradeSig = sig;
+                    this._upgradeRecent(state, alive, () => { persist(); schedule(); });
+                }
+            });
+        };
+
+        const sources = {
+            schools:    { path: "/school/dashboard",   load: () => SchoolsApi.dashboard() },
+            groups:     { path: "/chats/groups",       load: () => GroupsApi.list() },
+            invites:    { path: "/chat/invites",       load: () => GroupsApi.invites() },
+            dmRequests: { path: "/chat/dm-requests",   load: () => MessagesApi.getPendingDmRequests() },
+            dms:        { path: "/chat/dms",           load: () => MessagesApi.listDirectThreads() },
+        };
+
+        const apply = (key, value) => {
+            const next = Array.isArray(value) ? value : [];
+            if (state[key] !== null && JSON.stringify(state[key]) === JSON.stringify(next)) return;
+            state[key] = next;
+            if (key === "groups") next.forEach(g => EntityCache.rememberGroup(g));
+            if (key === "dms") next.forEach(u => EntityCache.rememberUser(u));
+            persist();
+            schedule();
+        };
+
+        if (state.groups) state.groups.forEach(g => EntityCache.rememberGroup(g));
+        if (state.dms) state.dms.forEach(u => EntityCache.rememberUser(u));
+
+        const onCache = (event) => {
+            if (!alive()) { window.removeEventListener(CACHE_EVENT, onCache); return; }
+            const path = event.detail?.path;
+            const key = Object.keys(sources).find(k => sources[k].path === path);
+            if (key && event.detail.data) apply(key, event.detail.data);
+        };
+        window.addEventListener(CACHE_EVENT, onCache);
+
+        schedule();
+
+        Object.entries(sources).forEach(([key, src]) => {
+            src.load()
+                .then(value => apply(key, value))
+                .catch(() => {
+                    // Keep whatever we already showed; only stop the
+                    // skeleton if there was nothing to show at all.
+                    if (state[key] === null) { state[key] = []; schedule(); }
+                });
+        });
+    },
+
+    // ---- Dashboard snapshot (last good data, shown instantly next visit) ----
+    _snapKey() {
+        return `${APP_CACHE_VERSION}:home_snapshot:${CacheService._userScope()}`;
+    },
+
+    _loadSnapshot() {
+        try {
+            const raw = localStorage.getItem(this._snapKey());
+            return raw ? JSON.parse(raw) : null;
+        } catch { return null; }
+    },
+
+    _saveSnapshot(state) {
+        try {
+            localStorage.setItem(this._snapKey(), JSON.stringify({
+                schools: state.schools, groups: state.groups, invites: state.invites,
+                dmRequests: state.dmRequests, dms: state.dms, recent: state.recent,
+            }));
+        } catch { /* storage full — the screen still works without a snapshot */ }
+    },
+
+    _paint(body, state, persist) {
+        const allEmpty = ["schools", "groups", "invites", "dmRequests", "dms"].every(k => state[k] === null);
+        if (allEmpty) {
+            mount(body, h("div", { className: "skeleton-row" }, [h("div", { className: "skeleton skeleton-avatar" }), h("div", { className: "skeleton skeleton-line" })]));
+            return;
+        }
+
+        const schools = state.schools;
+        const groups = state.groups || [];
+        const invites = state.invites || [];
+        const dmRequests = state.dmRequests || [];
+        const dms = state.dms || [];
 
         const statNums = { invites: invites.length + dmRequests.length };
+        const invitesKnown = state.invites !== null || state.dmRequests !== null;
         const statRow = h("div", { className: "stat-row" }, [
-            this._stat(schools.length, "Schools"),
-            this._stat(groups.length, "Groups"),
-            this._stat(statNums.invites, "Invites", "invites"),
+            this._stat(schools ? schools.length : "–", "Schools"),
+            this._stat(state.groups ? groups.length : "–", "Groups"),
+            this._stat(invitesKnown ? statNums.invites : "–", "Invites", "invites"),
         ]);
 
         const sections = [];
@@ -83,12 +174,14 @@ const HomePage = {
                                 onClick: () => this._respond(card, statNums, {
                                     action: () => MessagesApi.respondToDmRequest(req.id, "accepted"),
                                     successMsg: "Request accepted",
+                                    done: () => { state.dmRequests = (state.dmRequests || []).filter(r => r.id !== req.id); persist(); },
                                 }),
                             }, "Accept"),
                             h("button", {
                                 className: "btn btn-sm btn-ghost",
                                 onClick: () => this._respond(card, statNums, {
                                     action: () => MessagesApi.respondToDmRequest(req.id, "declined"),
+                                    done: () => { state.dmRequests = (state.dmRequests || []).filter(r => r.id !== req.id); persist(); },
                                 }),
                             }, "Decline"),
                         ]),
@@ -114,12 +207,14 @@ const HomePage = {
                                 onClick: () => this._respond(card, statNums, {
                                     action: () => GroupsApi.respondToInvite(inv.id, "accepted"),
                                     successMsg: "Joined group",
+                                    done: () => { state.invites = (state.invites || []).filter(i => i.id !== inv.id); persist(); },
                                 }),
                             }, "Accept"),
                             h("button", {
                                 className: "btn btn-sm btn-ghost",
                                 onClick: () => this._respond(card, statNums, {
                                     action: () => GroupsApi.respondToInvite(inv.id, "declined"),
+                                    done: () => { state.invites = (state.invites || []).filter(i => i.id !== inv.id); persist(); },
                                 }),
                             }, "Decline"),
                         ]),
@@ -131,10 +226,12 @@ const HomePage = {
 
         sections.push(h("div", { className: "section-title" }, [
             h("span", {}, "Your schools"),
-            schools.length ? h("span", { className: "link", onClick: () => Router.go("schools") }, "See all") : null,
+            schools && schools.length ? h("span", { className: "link", onClick: () => Router.go("schools") }, "See all") : null,
         ]));
 
-        if (schools.length === 0) {
+        if (schools === null) {
+            sections.push(h("div", { className: "skeleton-row" }, [h("div", { className: "skeleton skeleton-avatar" }), h("div", { className: "skeleton skeleton-line" })]));
+        } else if (schools.length === 0) {
             sections.push(EmptyState({
                 icon: "school",
                 title: "You haven't joined a school yet",
@@ -158,33 +255,26 @@ const HomePage = {
             sections.push(list);
         }
 
-        // ---- Recent messages -------------------------------------------------
-        // Painted immediately from data already in hand (group descriptions
-        // as placeholders, DMs already carry their own last message) so
-        // nothing here blocks first paint. The real per-group last message
-        // is fetched afterward, in the background, and only that section
-        // gets swapped once it's ready — see _upgradeRecent.
+        // Recent messages: painted from what we already have (DM previews,
+        // group descriptions, and the last real group messages remembered
+        // from earlier visits); the real ones are refreshed in the
+        // background by _upgradeRecent and swapped in as they arrive.
         const recentTitle = h("div", { className: "section-title" }, [
             h("span", {}, "Recent messages"),
             h("span", { className: "link hidden", id: "home-recent-seeall" }, "See all"),
         ]);
         const recentWrap = h("div", { id: "home-recent-wrap" });
         sections.push(recentTitle, recentWrap);
-        this._paintRecent(recentWrap, recentTitle, this._quickRecentPreviews(groups, dms));
+        this._paintRecent(recentWrap, recentTitle, this._quickRecentPreviews(groups, dms, state.recent));
 
-        mount(container, topBar, header, quickActions, statRow, ...sections);
-        NotificationService.syncBadge();
-
-        // Background upgrade only — the screen above is already fully
-        // interactive and doesn't wait on this at all.
-        this._upgradeRecent(groups, dms, recentWrap, recentTitle);
+        mount(body, statRow, ...sections);
     },
 
     // Instant accept/decline: the card disappears from the dashboard the
     // moment you tap, no re-render of the whole page. The request runs in
     // the background (20s to confirm); on failure the card comes back and
     // says so. On success it's just gone — no reload needed.
-    _respond(card, statNums, { action, successMsg }) {
+    _respond(card, statNums, { action, successMsg, done }) {
         Optimistic.run({
             timeoutMs: 20000,
             apply: () => card.classList.add("optimistic-busy"),
@@ -192,6 +282,7 @@ const HomePage = {
             revert: () => card.classList.remove("optimistic-busy"),
             reconcile: () => {
                 card.remove();
+                if (done) done();
                 if (statNums) {
                     statNums.invites = Math.max(0, statNums.invites - 1);
                     const el = qs('[data-stat="invites"] .stat-num');
@@ -203,43 +294,41 @@ const HomePage = {
         });
     },
 
-    _quickRecentPreviews(groups, dms) {
+    _quickRecentPreviews(groups, dms, upgraded = {}) {
         const dmPreviews = dms.map(u => ({
             kind: "dm", id: u.id, name: u.name || u.username, profile_pic: u.profile_pic,
             text: u.last_message || `@${u.username}`, sender: null, at: u.last_message_at || null,
         }));
-        const groupPreviews = groups.slice(0, 8).map(g => ({
-            kind: "group", id: g.id, name: g.name, profile_pic: g.profile_pic,
-            text: g.description || "No messages yet", sender: null, at: null,
-        }));
+        const groupPreviews = groups.slice(0, 8).map(g => {
+            const known = upgraded[g.id];
+            return {
+                kind: "group", id: g.id, name: g.name, profile_pic: g.profile_pic,
+                text: known?.text || g.description || "No messages yet",
+                sender: known?.sender || null,
+                at: known?.at || null,
+            };
+        });
         return this._sortRecent([...dmPreviews, ...groupPreviews]);
     },
 
-    async _upgradeRecent(groups, dms, wrap, title) {
-        try {
-            const groupPreviews = await Promise.all(groups.slice(0, 8).map(async g => {
-                let last = null;
-                try {
-                    const history = await MessagesApi.getGroupHistory(g.id, 1);
-                    last = (history || [])[history?.length - 1] || null;
-                } catch { last = null; }
-                return {
-                    kind: "group", id: g.id, name: g.name, profile_pic: g.profile_pic,
-                    text: last?.content || g.description || "No messages yet",
-                    sender: last?.sender_name || last?.sender_username || null,
-                    at: last?.created_at || null,
-                };
-            }));
-            const dmPreviews = dms.map(u => ({
-                kind: "dm", id: u.id, name: u.name || u.username, profile_pic: u.profile_pic,
-                text: u.last_message || `@${u.username}`, sender: null, at: u.last_message_at || null,
-            }));
-            if (!wrap.isConnected) return; // navigated away before this landed
-            this._paintRecent(wrap, title, this._sortRecent([...dmPreviews, ...groupPreviews]));
-        } catch {
-            // The quick preview painted earlier stays put — an upgrade
-            // failure is never worse than what's already on screen.
-        }
+    // Fetches the real last message per group in the background and
+    // repaints as each one lands. Never blocks the first paint.
+    async _upgradeRecent(state, alive, done) {
+        const groups = (state.groups || []).slice(0, 8);
+        await Promise.all(groups.map(async g => {
+            let last = null;
+            try {
+                const history = await MessagesApi.getGroupHistory(g.id, 1);
+                last = (history || [])[history?.length - 1] || null;
+            } catch { last = null; }
+            if (!last || !alive()) return;
+            state.recent[g.id] = {
+                text: last.content || g.description || "No messages yet",
+                sender: last.sender_name || last.sender_username || null,
+                at: last.created_at || null,
+            };
+            done();
+        }));
     },
 
     _sortRecent(list) {
