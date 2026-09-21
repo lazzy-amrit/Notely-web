@@ -48,9 +48,19 @@ const AuthApi = {
         return Api.delete(`/auth/delete?password=${encodeURIComponent(password)}`);
     },
 
-    // PATCH /auth/profile  (JSON: name?, username?, bio?, email?, school_name?, subjects?, contact_number?, incharge?)
+    // PATCH /auth/profile  (JSON: name?, username?, bio?, school_name?, subjects?, contact_number?, incharge?)
     updateProfile(fields) {
         return Api.patch("/auth/profile", fields);
+    },
+
+    // POST /auth/email/change  (JSON: new_email) — emails a 6-digit code to the NEW address
+    requestEmailChange(newEmail) {
+        return Api.post("/auth/email/change", { new_email: newEmail });
+    },
+
+    // POST /auth/email/change/verify  (JSON: new_email, otp) — applies the change
+    confirmEmailChange(newEmail, otp) {
+        return Api.post("/auth/email/change/verify", { new_email: newEmail, otp });
     },
 
     // PATCH /auth/password  (JSON: old_password, new_password)
