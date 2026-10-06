@@ -13,42 +13,45 @@
 const DEFAULT_API_HOST = "https://a64651-7798.c.onjrnm.link";
 
 const CONFIG = {
-    API_HOST: DEFAULT_API_HOST,
+  API_HOST: DEFAULT_API_HOST,
 
-    // Mirrors the API host (http -> ws, https -> wss) instead of a
-    // separately-hardcoded value.
-    WS_HOST: DEFAULT_API_HOST.startsWith("https://")
-        ? "wss://" + DEFAULT_API_HOST.slice("https://".length)
-        : DEFAULT_API_HOST.startsWith("http://")
-            ? "ws://" + DEFAULT_API_HOST.slice("http://".length)
-            : DEFAULT_API_HOST,
+  // Mirrors the API host (http -> ws, https -> wss) instead of a
+  // separately-hardcoded value.
+  WS_HOST: DEFAULT_API_HOST.startsWith("https://")
+    ? "wss://" + DEFAULT_API_HOST.slice("https://".length)
+    : DEFAULT_API_HOST.startsWith("http://")
+      ? "ws://" + DEFAULT_API_HOST.slice("http://".length)
+      : DEFAULT_API_HOST,
 
-    // Rough client-side mirror of backend rate limits, used only to
-    // decide when to pre-emptively disable a button; the backend's
-    // 429 response is still the real source of truth.
-    RATE_LIMITS: {
-        login: { max: 5, windowMs: 60_000 },
-        register: { max: 3, windowMs: 60_000 },
-    },
+  // Rough client-side mirror of backend rate limits, used only to
+  // decide when to pre-emptively disable a button; the backend's
+  // 429 response is still the real source of truth.
+  RATE_LIMITS: {
+    login: { max: 5, windowMs: 60_000 },
+    register: { max: 3, windowMs: 60_000 },
+  },
 
-    DM_MESSAGE_LIMIT: 5,
+  // Google One Tap / Sign-In (same Web client ID the backend has in GOOGLE_CLIENT_ID)
+  GOOGLE_CLIENT_ID: "PASTE_YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
 
-    AUTH: {
-        ACCESS_REFRESH_BEFORE_MS: 2 * 60 * 1000,
-        REFRESH_ROTATE_BEFORE_MS: 5 * 24 * 60 * 60 * 1000,
-        REFRESH_LIFETIME_MS: 60 * 24 * 60 * 60 * 1000,
-    },
+  DM_MESSAGE_LIMIT: 5,
 
-    STORAGE_KEYS: {
-        // TOKEN remains as an alias for old installations. New code stores
-        // the short-lived JWT and opaque refresh token separately.
-        TOKEN: "notely_token",
-        ACCESS_TOKEN: "notely_access_token",
-        REFRESH_TOKEN: "notely_refresh_token",
-        ACCESS_EXPIRES_AT: "notely_access_expires_at",
-        REFRESH_EXPIRES_AT: "notely_refresh_expires_at",
-        USER: "notely_user",
-    },
+  AUTH: {
+    ACCESS_REFRESH_BEFORE_MS: 2 * 60 * 1000,
+    REFRESH_ROTATE_BEFORE_MS: 5 * 24 * 60 * 60 * 1000,
+    REFRESH_LIFETIME_MS: 60 * 24 * 60 * 60 * 1000,
+  },
+
+  STORAGE_KEYS: {
+    // TOKEN remains as an alias for old installations. New code stores
+    // the short-lived JWT and opaque refresh token separately.
+    TOKEN: "notely_token",
+    ACCESS_TOKEN: "notely_access_token",
+    REFRESH_TOKEN: "notely_refresh_token",
+    ACCESS_EXPIRES_AT: "notely_access_expires_at",
+    REFRESH_EXPIRES_AT: "notely_refresh_expires_at",
+    USER: "notely_user",
+  },
 };
 
 // Frozen so a stray typo elsewhere can't silently create a new key.
