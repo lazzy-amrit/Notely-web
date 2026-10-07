@@ -32,7 +32,7 @@ const CONFIG = {
   },
 
   // Google One Tap / Sign-In (same Web client ID the backend has in GOOGLE_CLIENT_ID)
-  GOOGLE_CLIENT_ID: "PASTE_YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+  GOOGLE_CLIENT_ID: "336671853123-ardjqp3uuavnl6qf38df4n96v7q52lm8.apps.googleusercontent.com",
 
   DM_MESSAGE_LIMIT: 5,
 
