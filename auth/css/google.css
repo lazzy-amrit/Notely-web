@@ -1,16 +1,65 @@
+/* ------------------------------------------------------------
+   Google sign-in: button area
+   Google draws the button inside an iframe, so we can't style the
+   button itself. This file strips every box, border, background and
+   shadow we CAN control around it, and clips the iframe's own edge.
+   ------------------------------------------------------------ */
+
 .google-wrap{
     display:flex;
     flex-direction:column;
     align-items:center;
     gap:8px;
     margin-bottom:22px;
+    background:transparent;
+    border:0;
+    padding:0;
 }
 
+/* Clip box: hides the thin side outline that the iframe draws */
 #googleBtn{
     width:100%;
+    max-width:400px;
+    min-height:44px;
     display:flex;
     justify-content:center;
-    min-height:44px;
+    align-items:center;
+    margin:0 auto;
+    padding:0;
+    background:transparent !important;
+    border:0 !important;
+    outline:0 !important;
+    box-shadow:none !important;
+    overflow:hidden;
+    border-radius:999px;
+    color-scheme:light;
+}
+
+/* Every element Google injects inside it */
+#googleBtn *,
+#googleBtn > div,
+#googleBtn > div > div,
+#googleBtn iframe{
+    background:transparent !important;
+    border:0 !important;
+    outline:0 !important;
+    box-shadow:none !important;
+    color-scheme:light;
+}
+
+/* Push the iframe's own 1px edge past the clip box */
+#googleBtn iframe{
+    display:block;
+    margin:0 auto !important;
+    transform:scale(1.03);
+    transform-origin:center;
+}
+
+#googleBtn:focus,
+#googleBtn:focus-within,
+#googleBtn *:focus{
+    outline:0 !important;
+    box-shadow:none !important;
 }
 
 #googleError{
@@ -18,6 +67,10 @@
     min-height:1em;
     text-align:center;
 }
+
+/* ------------------------------------------------------------
+   First-time role picker (bottom sheet)
+   ------------------------------------------------------------ */
 
 .g-sheet{
     position:fixed;
