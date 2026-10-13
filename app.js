@@ -28,16 +28,20 @@ if ("serviceWorker" in navigator) {
 
     // Register the shell immediately. We do not make the user wait for a
     // chain of secondary requests before the UI can render. Auth is restored
-    // first, then the cache/WS warm-up continues in the background.
+    // first, then the cache and secondary API warm-up continue in the
+    // background.
     Router.register("home", (c) => HomePage.render(c));
-    Router.register("messages", (c, p) => MessagesPage.render(c, p));
+    // Chat was removed in v1.2; old installed PWAs may still hold links
+    // like #/messages/... — swap them for #/home (replace, so back doesn't
+    // bounce through dead links).
+    Router.register("messages", () => location.replace("#/home"));
     Router.register("notes", (c, p) => NotesPage.render(c, p));
     Router.register("schools", (c, p) => SchoolsPage.render(c, p));
     Router.register("profile", (c, p) => ProfilePage.render(c, p));
     Router.register("policies", (c, p) => PoliciesPage.render(c, p));
 
     // Paint immediately from whatever local user/cache state exists.
-    // Token refresh, /auth/me reconciliation, WS and secondary API warm-up
+    // Token refresh, /auth/me reconciliation and secondary API warm-up
     // all happen after first paint instead of holding the splash/shell hostage.
     Router.start();
 
@@ -57,16 +61,10 @@ if ("serviceWorker" in navigator) {
         }
     }
 
-    // Realtime + data warm-up remain independent of first paint.
-    WS.connect();
-    NotificationService.init().catch(() => {});
+    // Secondary data warm-up runs independent of first paint.
     CacheService.prefetch([
         "/auth/me",
         "/school/dashboard",
-        "/chats/groups",
-        "/chat/dms",
-        "/chat/invites",
-        "/chat/dm-requests",
         "/stars",
     ]).catch(() => {});
 })();

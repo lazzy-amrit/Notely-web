@@ -7,7 +7,7 @@
 // refreshes it. This makes navigation fast without turning the cache into
 // the source of truth.
 
-const APP_CACHE_VERSION = "notely_data_cache_v3";
+const APP_CACHE_VERSION = "notely_data_cache_v4";
 const CACHE_EVENT = "notely:cache-updated";
 const CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 
@@ -22,13 +22,8 @@ const CacheService = {
         } catch { return "current"; }
     },
 
-    _normalizePath(path) {
-        const p = String(path || "");
-        return p.replace(/^(\/chat\/(?:group|dm)\/\d+\/messages)\?limit=\d+$/, "$1?limit=20");
-    },
-
     _key(path) {
-        return `${APP_CACHE_VERSION}:${this._userScope()}:${this._normalizePath(path)}`;
+        return `${APP_CACHE_VERSION}:${this._userScope()}:${String(path || "")}`;
     },
 
     _read(path) {
@@ -62,20 +57,14 @@ const CacheService = {
         const p = String(path || "");
         if (p === "/auth/me") return { maxAge: 15 * 60 * 1000 };
         if (p === "/school/dashboard") return { maxAge: 5 * 60 * 1000 };
-        if (p === "/chats/groups") return { maxAge: 5 * 60 * 1000 };
-        if (p === "/chat/dms") return { maxAge: 60 * 1000 };
-        if (p === "/chat/dm-requests" || p === "/chat/invites") return { maxAge: 30 * 1000 };
         if (p === "/stars") return { maxAge: 5 * 60 * 1000 };
         if (/^\/school\/\d+\/info$/.test(p)) return { maxAge: 10 * 60 * 1000 };
         if (/^\/school\/\d+\/members$/.test(p)) return { maxAge: 3 * 60 * 1000 };
-        if (/^\/chat\/group\/\d+$/.test(p)) return { maxAge: 3 * 60 * 1000 };
         if (/^\/users\/\d+$/.test(p)) return { maxAge: 5 * 60 * 1000 };
         if (/^\/school\/\d+\/classes$/.test(p)) return { maxAge: 10 * 60 * 1000 };
         if (/^\/school\/\d+\/class\/[^/]+\/[^/]+\/subjects$/.test(p)) return { maxAge: 10 * 60 * 1000 };
         if (/^\/school\/\d+\/subjects\/\d+\/chapters$/.test(p)) return { maxAge: 10 * 60 * 1000 };
         if (/^\/notes\/(school|chapter|subject)\//.test(p)) return { maxAge: 10 * 60 * 1000 };
-        if (/^\/chat\/group\/\d+\/messages\?limit=\d+$/.test(p)) return { maxAge: 20 * 1000, messageHistory: true };
-        if (/^\/chat\/dm\/\d+\/messages\?limit=\d+$/.test(p)) return { maxAge: 20 * 1000, messageHistory: true };
         return null;
     },
 
@@ -97,14 +86,8 @@ const CacheService = {
         const promise = (async () => {
             try {
                 const fresh = await fetcher();
-                let data = fresh;
-                if (policy.messageHistory && Array.isArray(fresh)) {
-                    // Keep the latest 20 locally even if a caller asks for a
-                    // larger history. The server remains the full history.
-                    data = fresh.slice(-20);
-                }
-                this._write(path, data);
-                this._emit(path, data);
+                this._write(path, fresh);
+                this._emit(path, fresh);
                 return fresh;
             } finally {
                 this._inflight.delete(path);
@@ -114,14 +97,6 @@ const CacheService = {
         if (waitForResult) return promise;
         promise.catch(() => {});
         return null;
-    },
-
-    // Removes exactly one cache entry. Unlike invalidate() (a prefix scan),
-    // this is safe to use with a bare numeric id at the end of the path -
-    // invalidate("/chat/group/12") would also wipe "/chat/group/123" since
-    // it's a prefix match; this never does.
-    _invalidateExact(path) {
-        try { localStorage.removeItem(this._key(path)); } catch {}
     },
 
     invalidate(pathOrPrefix) {
@@ -140,49 +115,13 @@ const CacheService = {
     invalidateForMutation(path) {
         const p = String(path || "");
         if (p.startsWith("/auth/")) this.invalidate("/auth/me");
-        // Message sends/deletes/reactions are reconciled directly with the
-        // local 20-message history; don't wipe that cache on every send.
-        const isMessageMutation = /^\/chat\/(?:group\/\d+\/messages|dm\/\d+\/messages|messages\/)/.test(p);
         if (p.startsWith("/school/")) {
             this.invalidate("/school/dashboard");
             const match = p.match(/^\/school\/(\d+)/);
             if (match) this.invalidate(`/school/${match[1]}/`);
         }
-        if (p.startsWith("/chat/") && !isMessageMutation) {
-            this.invalidate("/chats/groups");
-            this.invalidate("/chat/dms");
-            this.invalidate("/chat/invites");
-            this.invalidate("/chat/dm-requests");
-        }
         if (p.startsWith("/notes/")) this.invalidate("/notes/");
         if (p.startsWith("/stars")) this.invalidate("/stars");
-
-        // Group detail (name/photo/members/roles) - covers profile-pic
-        // upload, member add/remove, and role changes so the cached
-        // /chat/group/{id} the user is looking at doesn't go stale.
-        const groupMatch = p.match(/^\/chat\/groups?\/(\d+)/);
-        if (groupMatch) this._invalidateExact(`/chat/group/${groupMatch[1]}`);
-        const roleMatch = p.match(/^\/chat\/(\d+)\/role$/);
-        if (roleMatch) this._invalidateExact(`/chat/group/${roleMatch[1]}`);
-    },
-
-    appendMessage(path, message) {
-        if (!path || !message) return;
-        const cached = this._read(path);
-        if (!cached || !Array.isArray(cached.data)) return;
-        const id = message.id ?? message.message_id;
-        const list = cached.data.filter(m => String(m.id ?? m.message_id) !== String(id));
-        list.push(message);
-        this._write(path, list.slice(-20));
-        this._emit(path, list.slice(-20));
-    },
-
-    removeMessage(path, messageId) {
-        const cached = this._read(path);
-        if (!cached || !Array.isArray(cached.data)) return;
-        const list = cached.data.filter(m => String(m.id ?? m.message_id) !== String(messageId));
-        this._write(path, list);
-        this._emit(path, list);
     },
 
     async prefetch(paths) {

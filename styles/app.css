@@ -31,9 +31,11 @@
     flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .app-header > .avatar { margin: 0; }
-.chat-header-text { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-.chat-header-text h1 { font-size: 1.05rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.chat-header-sub { font-size: .76rem; color: var(--muted); font-weight: 500; }
+/* Two-line header title (title + small sub-label), used by member-list
+   screens ("Class A • Members"). */
+.entity-header-text { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.entity-header-text h1 { font-size: 1.05rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entity-header-sub { font-size: .76rem; color: var(--muted); font-weight: 500; }
 /* Tappable header title (Part 2: tapping the class name opens its info
    card) — reset to a plain button so it inherits the same h1 styling. */
 .class-title-btn {
@@ -93,10 +95,6 @@
 .nav-item .material-symbols-rounded { font-size: 24px; }
 .nav-item.active { color: var(--primary); }
 .nav-item.active .material-symbols-rounded { font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24; }
-.nav-badge {
-    position: absolute; top: 4px; right: calc(50% - 20px);
-    width: 8px; height: 8px; border-radius: 50%; background: var(--danger);
-}
 
 /* ---------------- DASHBOARD ---------------- */
 
@@ -149,29 +147,6 @@
 }
 .fab .material-symbols-rounded { font-size: 28px; }
 .fab:active { transform: scale(.94); }
-/* When the bottom tab bar is hidden (full-screen surfaces) the FAB
-   drops down to the plain Android margin instead of leaving a gap. */
-body.nav-hidden .fab { bottom: calc(16px + env(safe-area-inset-bottom)); }
-
-/* ---------------- CHAT INPUT BAR ---------------- */
-
-.chat-scroll { display: flex; flex-direction: column; padding-bottom: 8px; }
-.composer {
-    position: sticky; bottom: 0; display: flex; align-items: flex-end; gap: 8px;
-    background: var(--bg); padding: 10px 0 max(10px, env(safe-area-inset-bottom));
-}
-.composer textarea {
-    flex: 1; border: none; border-radius: 22px; background: var(--surface);
-    box-shadow: var(--shadow-sm); padding: 13px 18px; font-size: .95rem;
-    resize: none; max-height: 120px; font-family: inherit;
-}
-.composer textarea:focus { outline: none; }
-.composer .send-btn {
-    width: 46px; height: 46px; border-radius: 50%; border: none; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--primary-btn-from), var(--primary-btn-to)); color: var(--on-primary);
-    display: flex; align-items: center; justify-content: center;
-}
-.composer .send-btn:disabled { opacity: .4; }
 
 /* ---------------- BREADCRUMB (Schools > Classes > Notes) ---------------- */
 
@@ -184,125 +159,14 @@ body.nav-hidden .fab { bottom: calc(16px + env(safe-area-inset-bottom)); }
 .tab-btn { flex: 1; border: none; background: none; padding: 10px 0; border-radius: 14px; font-weight: 700; font-size: .85rem; color: var(--muted); }
 .tab-btn.active { background: var(--surface); color: var(--primary); box-shadow: var(--shadow-sm); }
 
-/* ---------------- NOTIFICATIONS ---------------- */
+/* ---------------- DASHBOARD HEADER ---------------- */
 
 .dashboard-header { margin-bottom: 8px; }
 .dashboard-header h1 { font-size: 1.2rem; }
-.notification-btn {
-    width: 42px; height: 42px; border: none; border-radius: 14px;
-    background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text);
-    display: flex; align-items: center; justify-content: center; position: relative;
-    transition: transform .15s ease;
-}
-.notification-btn:active { transform: scale(.92); }
-.notification-btn .material-symbols-rounded { font-size: 24px; }
-.notification-badge {
-    position: absolute; top: -3px; right: -3px;
-    min-width: 18px; height: 18px; padding: 0 5px;
-    border-radius: 999px; background: var(--danger); color: var(--on-primary);
-    border: 2px solid var(--bg); font-size: .62rem; line-height: 14px;
-    font-weight: 800; display: flex; align-items: center; justify-content: center;
-    animation: notif-badge-pop .25s cubic-bezier(.34,1.56,.64,1);
-}
-/* A quiet "something's here" pulse on the bell itself when there's an
-   unread badge — cute, not nagging (one soft breathe, not a shake). */
-.notification-btn:has(.notification-badge:not(.hidden)) .material-symbols-rounded {
-    animation: notif-bell-breathe 2.4s ease-in-out infinite;
-}
-@keyframes notif-badge-pop { from { transform: scale(0); } to { transform: scale(1); } }
-@keyframes notif-bell-breathe {
-    0%, 100% { transform: rotate(0deg); }
-    5% { transform: rotate(-8deg); }
-    10% { transform: rotate(7deg); }
-    15% { transform: rotate(-5deg); }
-    20% { transform: rotate(0deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .notification-badge { animation: none; }
-    .notification-btn .material-symbols-rounded { animation: none !important; }
-}
 
-.notification-center { padding-bottom: 4px; }
-.notification-center-head {
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-    margin-bottom: 14px;
-}
-.notification-center-head h3 { font-size: 1.25rem; margin-top: -10px; }
-.notification-list { display: flex; flex-direction: column; gap: 8px; }
-.notification-row {
-    display: flex; align-items: flex-start; gap: 12px; padding: 13px 10px;
-    border-radius: var(--radius-md); cursor: pointer; position: relative;
-    animation: notif-row-in .22s ease both;
-}
-.notification-row:hover { background: var(--surface-alt); }
-.notification-row.unread { background: var(--primary-soft); }
-@keyframes notif-row-in {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: reduce) { .notification-row { animation: none; } }
-
-.notification-icon {
-    width: 42px; height: 42px; border-radius: 14px; flex-shrink: 0;
-    background: var(--primary-soft); color: var(--primary);
-    display: flex; align-items: center; justify-content: center;
-}
-/* Each notification kind gets its own colour, so the list reads at a
-   glance instead of being a wall of identical grey tiles. */
-.notification-icon.type-direct_message,
-.notification-icon.type-group_message { background: var(--success-soft); color: var(--success); }
-.notification-icon.type-group_invite { background: var(--star-soft); color: var(--star); }
-.notification-icon.type-dm_request { background: var(--warning-soft); color: var(--warning-text, var(--warning)); }
-.notification-icon .material-symbols-rounded { font-size: 22px; }
-.notification-content { flex: 1; min-width: 0; }
-.notification-title { font-size: .9rem; font-weight: 700; line-height: 1.25; padding-right: 12px; }
-.notification-body { color: var(--muted); font-size: .82rem; line-height: 1.35; margin-top: 3px; }
-.notification-time { color: var(--muted); font-size: .72rem; margin-top: 6px; }
-.notification-dot {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--primary);
-    flex-shrink: 0; margin-top: 6px; box-shadow: 0 0 0 3px var(--primary-soft);
-}
-.notification-actions { display: flex; gap: 7px; margin-top: 10px; }
-.notification-actions .btn { height: 36px; padding: 0 13px; font-size: .78rem; }
-/* Optimistic accept/decline: the row visibly settles instead of just
-   vanishing (matches the same pattern used across the rest of the app). */
-.notification-row.optimistic-busy { pointer-events: none; }
-.notification-row.optimistic-busy .notification-icon { opacity: .45; }
-.notification-row.optimistic-busy .notification-actions { opacity: .45; }
-
-
-/* ---------------- SOCIAL CHAT / GROUP UI ----------------
-   The full chat-thread layout (header/scroll/composer/emoji dock)
-   lives entirely in pages/messages/messages.css now — it used to be
-   partly duplicated here too, and because these selectors are more
-   specific than the plain ones in messages.css, THIS file was quietly
-   winning the cascade for composer/scroll positioning while
-   messages.css looked like the source of truth. That's what caused
-   the "composer floats in a weird spot", "message bar changes size",
-   and "bottom nav overlaps the chat" symptoms. Only the group-detail
-   sheet styling (not part of the thread view itself) stays here. */
-.group-detail-sheet { padding-bottom:10px; }
-.group-detail-hero { text-align:center; padding:2px 0 16px; }
-.group-detail-hero .avatar { margin:0 auto 7px; }
-.group-detail-hero h2 { font-size:1.3rem; }
-.group-detail-hero p { color:var(--muted); font-size:.82rem; line-height:1.4; max-width:340px; margin:4px auto 8px; }
-.group-detail-hero .badge { margin-bottom:10px; }
-.group-members-head { display:flex; align-items:center; justify-content:space-between; margin:18px 2px 8px; }
-.group-members-head h3 { font-size:.95rem; }
-.group-members-head span { color:var(--muted); font-size:.7rem; }
-.group-members { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
-.member-card { display:flex; align-items:center; gap:10px; width:100%; border:1px solid var(--border); background:var(--surface); border-radius:16px; padding:9px; text-align:left; }
-.member-copy { flex:1; min-width:0; }
-.member-copy strong,.member-copy span { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.member-copy span { color:var(--muted); font-size:.72rem; margin-top:2px; }
+/* Small role pill used on member rows (school/class member lists). */
 .member-role-btn { border:0; background:var(--surface-alt); color:var(--primary); font-weight:800; font-size:.68rem; border-radius:999px; padding:7px 9px; }
 .member-role-btn.muted { color:var(--muted); }
-
-/* The tab bar is removed from the DOM entirely while a thread is open
-   (see router.js), but belt-and-braces: also hide it via this body
-   class so there's never a frame where it's visible underneath a
-   fixed-position chat surface. */
-body.nav-hidden .bottom-nav { display: none; }
 
 /* ---------- School information card (Schools tab) ----------
    Pinned above the class list so the school's identity, contact

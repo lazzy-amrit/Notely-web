@@ -169,7 +169,6 @@ const ProfilePage = {
                 row("mail", "Update email", () => this._openUpdateEmail()),
                 row("lock", "Change password", () => this._openChangePassword()),
                 row("privacy_tip", "Privacy", () => { Sheet.close(); Router.go("policies/privacy"); }),
-                row("notifications", "Notification preferences", () => this._openNotificationSettings()),
                 row("description", "Terms & Conditions", () => { Sheet.close(); Router.go("policies/terms"); }),
                 row("support_agent", "Customer Support", () => { Sheet.close(); Router.go("policies/support"); }),
                 row("info", "About Notely", () => { Sheet.close(); Router.go("policies/about"); }),
@@ -177,48 +176,6 @@ const ProfilePage = {
             h("div", { className: "card" }, [
                 row("logout", "Log out", () => this._confirmLogout()),
                 row("delete_forever", "Delete account", () => this._startDeleteAccount(), true),
-            ]),
-        ]));
-    },
-
-    // Two separate controls because they're two separate things:
-    // - the in-app buzz for messages/invites that arrive while Notely is
-    //   open (services/notifications.js, fully in our control)
-    // - the tray notification you get when the app is backgrounded/closed,
-    //   whose sound+vibration is an Android notification-channel setting
-    //   that only the OS-level screen below can actually change once the
-    //   channel exists (see NotelyApplication.java).
-    _openNotificationSettings() {
-        const buildToggleRow = (label, hint, getValue, setValue) => {
-            const pill = h("button", {
-                type: "button",
-                className: `member-role-btn ${getValue() ? "" : "muted"}`,
-            }, getValue() ? "On" : "Off");
-            pill.addEventListener("click", () => {
-                const next = !getValue();
-                setValue(next);
-                pill.textContent = next ? "On" : "Off";
-                pill.classList.toggle("muted", !next);
-            });
-            return h("div", { className: "card-row" }, [
-                h("div", { className: "card-row-text" }, [
-                    h("div", { className: "card-row-title" }, label),
-                    hint ? h("div", { className: "card-row-sub", style: "color:var(--muted);font-size:.78rem;margin-top:2px" }, hint) : null,
-                ]),
-                pill,
-            ]);
-        };
-
-        Sheet.open(h("div", {}, [
-            h("div", { className: "sheet-handle" }),
-            h("h3", { style: "margin-bottom:10px" }, "Notification preferences"),
-            h("div", { className: "card" }, [
-                buildToggleRow(
-                    "Vibrate while using Notely",
-                    "New messages, invites and requests that arrive with the app open.",
-                    () => NotificationService.vibrateEnabled(),
-                    (val) => NotificationService.setVibrateEnabled(val),
-                ),
             ]),
         ]));
     },
@@ -343,7 +300,7 @@ const ProfilePage = {
         const step1 = h("div", { className: "confirm-dialog" }, [
             h("span", { className: "material-symbols-rounded", style: "font-size:40px;color:var(--danger)" }, "warning"),
             h("h3", { style: "margin-top:12px" }, "Delete your account?"),
-            h("p", {}, "This permanently removes your profile, messages, and school memberships. This cannot be undone."),
+            h("p", {}, "This permanently removes your profile, notes, and school memberships. This cannot be undone."),
             h("div", { className: "confirm-actions" }, [
                 h("button", { className: "btn btn-ghost", onClick: () => Sheet.close() }, "Cancel"),
                 h("button", { className: "btn btn-danger", onClick: () => this._deleteAccountStep2() }, "Continue"),

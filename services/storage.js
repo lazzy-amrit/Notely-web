@@ -5,8 +5,8 @@
 // The storage id is the only identifier the frontend needs.
 //
 // Storage IDs are immutable content: a new upload always gets a new
-// id and the old one is deleted server-side (see backend
-// Account/profile.py, Chat/profile_pic.py). That means once a blob is
+// id and the old one is deleted server-side (see the backend's
+// Account/profile.py). That means once a blob is
 // cached for an id, it never goes stale — so it's safe to persist to
 // disk (IndexedDB) and skip the network entirely on every later hit,
 // across app restarts. This is what keeps avatars/photos painting

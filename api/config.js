@@ -1,9 +1,8 @@
 // ------------------------------------------------------------------
 // Notely — central configuration
 // ------------------------------------------------------------------
-// This is the ONLY place the backend host/port should be written.
-// Every page (auth pages included) reads from CONFIG.API_HOST /
-// CONFIG.WS_HOST — verified across auth/js/*.js.
+// This is the ONLY place the backend host should be written.
+// Every page (auth pages included) reads from CONFIG.API_HOST.
 //
 // Website deployment: API_HOST is a fixed, hardcoded backend URL.
 // If the backend moves, update DEFAULT_API_HOST here — there is no
@@ -14,14 +13,6 @@ const DEFAULT_API_HOST = "https://a64651-7798.c.onjrnm.link";
 
 const CONFIG = {
   API_HOST: DEFAULT_API_HOST,
-
-  // Mirrors the API host (http -> ws, https -> wss) instead of a
-  // separately-hardcoded value.
-  WS_HOST: DEFAULT_API_HOST.startsWith("https://")
-    ? "wss://" + DEFAULT_API_HOST.slice("https://".length)
-    : DEFAULT_API_HOST.startsWith("http://")
-      ? "ws://" + DEFAULT_API_HOST.slice("http://".length)
-      : DEFAULT_API_HOST,
 
   // Rough client-side mirror of backend rate limits, used only to
   // decide when to pre-emptively disable a button; the backend's
@@ -34,8 +25,6 @@ const CONFIG = {
   // Google One Tap / Sign-In (same Web client ID the backend has in GOOGLE_CLIENT_ID)
   GOOGLE_CLIENT_ID:
     "336671853123-ardjqp3uuavnl6qf38df4n96v7q52lm8.apps.googleusercontent.com",
-
-  DM_MESSAGE_LIMIT: 5,
 
   AUTH: {
     ACCESS_REFRESH_BEFORE_MS: 2 * 60 * 1000,

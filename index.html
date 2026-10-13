@@ -4,25 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-<title>Notely — Notes and class chat for schools</title>
-<meta name="description" content="Notely keeps a school's classes, subjects, notes and chat in one place. Teachers share notes and PDFs by subject, students find everything instantly, and classes get their own group chat. Free to get started.">
+<title>Notely — Class notes and PDFs, organized for schools</title>
+<meta name="description" content="Notely keeps a school's classes, subjects and notes in one place. Teachers share notes and PDFs by subject, chapters track what's done, and students find any note instantly. Free to get started.">
 <link rel="canonical" href="https://notely-edu.pages.dev/">
 
 <!-- Open Graph / social preview -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Notely — Notes and class chat for schools">
-<meta property="og:description" content="Class notes, subject PDFs and group chat, organized by school, class and subject. Built for teachers and students.">
+<meta property="og:site_name" content="Notely">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Notely — Class notes and PDFs, organized for schools">
+<meta property="og:description" content="Class notes, subject PDFs and chapter progress, organized by school, class and subject. Built for teachers and students.">
 <meta property="og:image" content="https://notely-edu.pages.dev/assets/images/logo-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Notely logo">
 <meta property="og:url" content="https://notely-edu.pages.dev/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Notely — Notes and class chat for schools">
-<meta name="twitter:description" content="Class notes, subject PDFs and group chat, organized by school, class and subject.">
+<meta name="twitter:title" content="Notely — Class notes and PDFs, organized for schools">
+<meta name="twitter:description" content="Class notes, subject PDFs and chapter progress, organized by school, class and subject.">
 <meta name="twitter:image" content="https://notely-edu.pages.dev/assets/images/logo-512.png">
+<meta name="twitter:image:alt" content="Notely logo">
 
 <link rel="icon" type="image/png" href="assets/images/logo.png">
 <link rel="apple-touch-icon" href="assets/images/logo.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7B61FF">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101017">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,18 +45,20 @@
   "name": "Notely",
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Web",
-  "description": "Notely keeps a school's classes, subjects, notes and chat in one place for teachers and students.",
+  "softwareVersion": "1.2.0",
+  "description": "Notely keeps a school's classes, subjects, chapters and notes in one place for teachers and students.",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 }
 </script>
 </head>
 <body class="auth-check">
+<noscript><style>.site { visibility: visible; }</style></noscript>
 <div class="site">
 
     <nav class="site-nav">
         <div class="wrap">
             <a class="brand" href="#top">
-                <img src="assets/images/logo.png" alt="">
+                <img src="assets/images/logo.png" alt="" width="192" height="192">
                 Notely
             </a>
             <div class="nav-actions">
@@ -63,10 +72,10 @@
         <div class="wrap">
             <div class="hero-copy">
                 <span class="eyebrow">Built for schools</span>
-                <h1>All your class notes and chat, <span>finally in one place</span>.</h1>
+                <h1>Every class note, <span>finally in one place</span>.</h1>
                 <p class="lede">
-                    Notely organizes every school by class and subject — teachers post notes and PDFs
-                    where students can actually find them, and every class gets its own group chat.
+                    Notely organizes every school by class, section and subject — teachers post notes
+                    and PDFs where students can actually find them, and chapters show what's done.
                 </p>
                 <div class="hero-ctas">
                     <a class="btn btn-primary btn-lg" href="auth/register.html">
@@ -77,17 +86,17 @@
                 </div>
             </div>
             <div class="hero-art" aria-hidden="true">
-                <img src="assets/images/teacher.png" alt="">
-                <img src="assets/images/student.png" alt="">
+                <img src="assets/images/teacher.png" alt="" width="409" height="610">
+                <img src="assets/images/student.png" alt="" width="409" height="610">
             </div>
         </div>
     </header>
 
     <section class="stats">
         <div class="wrap">
-            <div class="stat"><b>Schools</b><span>Organized by class &amp; subject</span></div>
-            <div class="stat"><b>Notes</b><span>Shared as searchable PDFs</span></div>
-            <div class="stat"><b>Chat</b><span>Built into every class</span></div>
+            <div class="stat"><b>Schools</b><span>Organized by class &amp; section</span></div>
+            <div class="stat"><b>Subjects</b><span>Notes filed where they belong</span></div>
+            <div class="stat"><b>Chapters</b><span>Progress you can see</span></div>
         </div>
     </section>
 
@@ -95,7 +104,7 @@
         <div class="wrap">
             <div class="section-head">
                 <h2>Everything a class needs, nothing it doesn't</h2>
-                <p>No more scattered PDFs in five different group chats.</p>
+                <p>No more scattered PDFs across five different apps.</p>
             </div>
             <div class="feature-grid">
                 <div class="feature-card">
@@ -104,9 +113,9 @@
                     <p>Photos or files become clean, readable PDFs, filed under the right class and subject automatically.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span></div>
-                    <h3>A group chat for every class</h3>
-                    <p>Announcements, questions and discussion stay with the class they belong to — plus DMs for one-on-one.</p>
+                    <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></div>
+                    <h3>Chapters with real progress</h3>
+                    <p>Every subject is broken into chapters, each marked complete or in progress — so everyone knows exactly where the class is.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">school</span></div>
@@ -116,7 +125,7 @@
                 <div class="feature-card">
                     <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">star</span></div>
                     <h3>Star what matters</h3>
-                    <p>Save key notes and chats for instant access later — no more scrolling back through weeks of messages.</p>
+                    <p>Pin classes, subjects and notes for instant access later — no more digging through folders.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><span class="material-symbols-rounded" aria-hidden="true">devices</span></div>
@@ -139,23 +148,23 @@
             </div>
             <div class="audience-grid">
                 <div class="audience-card">
-                    <img src="assets/images/teacher.png" alt="">
+                    <img src="assets/images/teacher.png" alt="A teacher reviewing class notes on a tablet" width="409" height="610" loading="lazy" decoding="async">
                     <h3>For teachers</h3>
                     <p>Share notes once, with the class they're meant for.</p>
                     <ul>
                         <li>Post notes and PDFs straight to a subject</li>
-                        <li>Message the whole class or one student</li>
+                        <li>Track chapter progress for the whole class</li>
                         <li>Keep every subject's materials organized</li>
                     </ul>
                 </div>
                 <div class="audience-card">
-                    <img src="assets/images/student.png" alt="">
+                    <img src="assets/images/student.png" alt="A student studying from notes on a phone" width="409" height="610" loading="lazy" decoding="async">
                     <h3>For students</h3>
-                    <p>Stop hunting through chats for the one PDF you need.</p>
+                    <p>Stop hunting through apps for the one PDF you need.</p>
                     <ul>
                         <li>Find notes by class and subject, instantly</li>
                         <li>Star the ones you'll need again</li>
-                        <li>Ask questions in the class chat</li>
+                        <li>See which chapters are already covered</li>
                     </ul>
                 </div>
             </div>
@@ -183,8 +192,8 @@
 </div>
 
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
-<script src="api/config.js"></script>
-<script src="services/session.js"></script>
-<script src="landing.js"></script>
+<script defer src="api/config.js"></script>
+<script defer src="services/session.js"></script>
+<script defer src="landing.js"></script>
 </body>
 </html>

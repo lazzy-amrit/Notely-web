@@ -5,12 +5,16 @@
     --surface: #FFFFFF;
     --surface-alt: #F1F1F8;
     --text: #1B1B1F;
-    --muted: #63636F;
+    --muted: #777785;
     --border: #E8E8EF;
     --radius: 20px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* Kills the ~300ms double-tap-zoom delay on tappable elements in mobile
+   browsers without disabling pinch zoom (only double-tap). */
+a, .btn { touch-action: manipulation; }
 
 html { font-size: 16px; scroll-behavior: smooth; }
 
@@ -165,4 +169,14 @@ img { display: block; max-width: 100%; }
     .cta-band h2 { font-size: 1.9rem; }
 
     .site-footer .wrap { flex-direction: row; justify-content: space-between; text-align: left; }
+}
+
+/* ================== REDUCED MOTION ==================
+   Mirrors the app shell (styles/global.css): users who ask the OS for
+   less motion get an instant, static page — no smooth scrolling, no
+   button/scale transitions. */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn { transition: none; }
+    .btn:active { transform: none; }
 }

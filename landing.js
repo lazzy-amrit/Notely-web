@@ -12,6 +12,13 @@
 // check, they just read localStorage, so this resolves instantly.
 // ------------------------------------------------------------------
 
+// Same registration as app.js — the landing page is the entry point for
+// most visitors, so the shell should be precached from the very first
+// visit (see sw.js for the caching strategy).
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
 (async () => {
     let loggedIn = false;
     try {

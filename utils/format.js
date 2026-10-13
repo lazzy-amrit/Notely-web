@@ -2,82 +2,9 @@
 // utils/format.js
 // ------------------------------------------------------------------
 
-// Safely turns whatever the backend sent (ISO string with/without a
-// trailing "Z", a bare "YYYY-MM-DD HH:MM:SS" string, a unix timestamp
-// number, a Date instance, null/undefined/"") into a valid Date or
-// null. NEVER throws, NEVER returns an Invalid Date - every caller in
-// this file checks for null instead of relying on isNaN downstream.
-function safeParseDate(input) {
-    if (input === null || input === undefined || input === "") return null;
-
-    let date;
-    if (input instanceof Date) {
-        date = input;
-    } else if (typeof input === "number") {
-        // Backends sometimes send unix seconds instead of ms.
-        date = new Date(input < 1e12 ? input * 1000 : input);
-    } else if (typeof input === "string") {
-        const str = input.trim();
-        if (!str) return null;
-        // Bare "YYYY-MM-DD HH:MM:SS" (no timezone, no "T") is treated as
-        // UTC, matching what the backend actually stores; a string that
-        // already carries a timezone (Z, +HH:MM) is left alone.
-        const hasZone = /Z$|[+-]\d{2}:?\d{2}$/.test(str);
-        const normalized = str.includes("T") ? str : str.replace(" ", "T");
-        date = new Date(hasZone ? normalized : `${normalized}Z`);
-    } else {
-        return null;
-    }
-
-    return isNaN(date.getTime()) ? null : date;
-}
-
-function timeAgo(dateStr) {
-    const date = safeParseDate(dateStr);
-    if (!date) return "";
-    const diffMs = Date.now() - date.getTime();
-    const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return "now";
-    if (mins < 60) return `${mins}m`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h`;
-    const days = Math.floor(hrs / 24);
-    if (days < 7) return `${days}d`;
-    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
-function messageTime(dateStr) {
-    const date = safeParseDate(dateStr);
-    if (!date) return "";
-    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-}
-
-// Chat-list / conversation-row style timestamp: "Just now", "2m",
-// a time for today, "Yesterday", a weekday name, or a compact date for
-// anything older than a week - never "Invalid Date". Used by the DM
-// inbox row (pages/messages/messages.js) against last_message_at from
-// GET /chat/dms - kept here as the ONE place any list timestamp
-// should call into, per the "one centralized formatter" requirement.
-function conversationTime(dateStr) {
-    const date = safeParseDate(dateStr);
-    if (!date) return "";
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return "Just now";
-    if (mins < 60) return `${mins}m`;
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const dayDiff = Math.round((startOfToday - startOfDate) / 86400000);
-    if (dayDiff === 0) return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-    if (dayDiff === 1) return "Yesterday";
-    if (dayDiff > 1 && dayDiff < 7) return date.toLocaleDateString(undefined, { weekday: "long" });
-    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
-// Public static assets (profile/school/group pics) live under /Uploads
-// on the backend. Note PDFs are NEVER resolved this way - they always
-// go through NotesApi.getFile() (see api/notes.js).
+// Public static assets (profile/school pics) live behind authenticated
+// download endpoints on the backend. Note PDFs are NEVER resolved this
+// way - they always go through NotesApi.getFile() (see api/notes.js).
 function publicAssetUrl(path) {
     if (!path) return null;
     if (path.startsWith("http")) return path;
@@ -128,10 +55,6 @@ async function copyToClipboard(text) {
     }
 }
 
-window.copyToClipboard = copyToClipboard;
-window.safeParseDate = safeParseDate;
-window.timeAgo = timeAgo;
-window.messageTime = messageTime;
-window.conversationTime = conversationTime;
 window.publicAssetUrl = publicAssetUrl;
 window.initials = initials;
+window.copyToClipboard = copyToClipboard;

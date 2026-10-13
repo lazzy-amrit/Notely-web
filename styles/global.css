@@ -6,6 +6,11 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { font-size: 16px; }
 
+/* Kills the browser's ~300ms double-tap-zoom wait on tappable things
+   (buttons, rows, links) without disabling pinch zoom. Big win for how
+   "native" taps feel on Android. */
+button, a, [role="button"] { touch-action: manipulation; }
+
 /* ---------------- FOCUS / TAP STYLING ---------------- */
 /* The WebView's default focus ring (Chrome's `outline: -webkit-focus-ring-
    color auto`) is what makes a tapped button/card show a stray dark
@@ -210,6 +215,9 @@ body.no-scroll { overflow: hidden; }
     padding: 20px var(--sheet-gutter) max(20px, env(safe-area-inset-bottom));
     transform: translateY(100%);
     transition: transform .3s cubic-bezier(.22,1,.36,1);
+    /* The whole slide is a transform — keep it on the compositor so the
+       entrance stays smooth even while the page underneath is busy. */
+    will-change: transform;
     max-height: 85dvh; overflow-y: auto; overflow-x: hidden;
     overscroll-behavior: contain;
 }
@@ -285,62 +293,27 @@ body.no-scroll { overflow: hidden; }
 .toast-success { background: #1F6B3A; }
 .toast-error { background: #8C2A24; }
 
-/* ---------------- UPDATE CARD ---------------- */
-/* One shared centered-card look for both the normal (dismissible)
-   and critical (non-dismissible) update prompts - see
-   components/update-popup.js. Rendered via Sheet's "modal" kind,
-   which already supplies the centered/rounded .modal-panel frame;
-   this just styles what goes inside it. */
-
-.update-card { position: relative; text-align: center; padding: 6px 2px 4px; }
-.update-card-close {
-    position: absolute; top: -4px; right: -4px;
-    border: none; background: none; font-size: 24px; color: var(--muted);
-    line-height: 1; padding: 6px; cursor: pointer;
-}
-.update-card-title { font-size: 1.3rem; font-weight: 800; margin: 4px 0 10px; }
-.update-card-text { color: var(--muted); font-size: .92rem; margin-bottom: 18px; line-height: 1.45; }
-.update-card-status { min-height: 20px; font-size: .85rem; color: var(--muted); margin-bottom: 12px; }
-.update-card-status-error { color: #C0392B; }
-.update-card-btn { width: 100%; }
-.update-card-skip {
-    display: block; width: 100%; margin-top: 12px;
-    border: none; background: none; color: var(--muted);
-    font-size: .88rem; font-weight: 600; padding: 6px; cursor: pointer;
-}
-
 /* ---------------- SKELETON LOADING ---------------- */
 
+/* Shimmer runs on the compositor: a pseudo-element gradient slides via
+   transform (GPU) instead of repainting background-position every frame. */
 .skeleton {
-    background: linear-gradient(90deg, var(--surface-alt) 25%, var(--surface-2) 37%, var(--surface-alt) 63%);
-    background-size: 400% 100%;
-    animation: skeleton-shine 1.4s ease infinite;
+    position: relative;
+    background: var(--surface-alt);
     border-radius: var(--radius-sm);
+    overflow: hidden;
 }
-@keyframes skeleton-shine { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.skeleton::after {
+    content: "";
+    position: absolute; inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, var(--surface-2) 50%, transparent);
+    animation: skeleton-shine 1.4s ease infinite;
+}
+@keyframes skeleton-shine { to { transform: translateX(100%); } }
 .skeleton-row { display: flex; align-items: center; gap: 12px; padding: 14px 4px; }
 .skeleton-avatar { width: 50px; height: 50px; border-radius: 50%; }
 .skeleton-line { height: 14px; border-radius: 7px; flex: 1; }
-
-/* ---------------- MESSAGE BUBBLES ---------------- */
-/* The full bubble/row implementation (clustering, avatars, reactions)
-   lives in pages/messages/messages.css — this file no longer defines
-   .msg-row/.bubble at all, to avoid the two colliding via CSS
-   specificity. */
-
-.typing-dots { display: inline-flex; gap: 3px; padding: 10px 14px; }
-.typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: typing-bounce 1.2s infinite; }
-.typing-dots span:nth-child(2) { animation-delay: .15s; }
-.typing-dots span:nth-child(3) { animation-delay: .3s; }
-@keyframes typing-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
-
-/* DM privacy wall prompt */
-.dm-wall {
-    background: var(--surface-alt); border-radius: var(--radius-md);
-    padding: 14px; margin: 10px 0; text-align: center;
-}
-.dm-wall p { font-size: .85rem; color: var(--muted); margin-bottom: 10px; }
-.dm-wall-actions { display: flex; gap: 8px; justify-content: center; }
 
 /* ---------------- MISC ---------------- */
 

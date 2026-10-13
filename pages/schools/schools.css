@@ -1,9 +1,9 @@
 /* ------------------------------------------------------------------
    pages/schools/schools.css
-   School screens: explore bar, school header (Groups-style), school
-   information sheet, class list, section list, creation flow.
+   School screens: explore bar, school header, school information
+   sheet, class list, section list, creation flow.
    Everything here reuses the shared tokens in styles/variables.css so
-   these screens read as the same Android app as Messages/Groups.
+   these screens read as one consistent app.
 ------------------------------------------------------------------ */
 
 /* ---------------- EXPLORE / SEARCH BAR ---------------- */
@@ -27,7 +27,7 @@
 .explore-results { margin: 0 0 14px; }
 .explore-hint { color: var(--muted); font-size: .82rem; padding: 10px 2px; }
 
-/* ---------------- SCHOOL HEADER (mirrors .chat-topbar) ---------------- */
+/* ---------------- SCHOOL HEADER ---------------- */
 
 /* The school topbar mirrors .app-header geometry, so it reuses the same
    circular 40px controls at both ends. */

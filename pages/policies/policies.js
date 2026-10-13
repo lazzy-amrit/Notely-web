@@ -89,22 +89,21 @@ const POLICY_CONTENT = {
                 bullets: [
                     "Account details you provide: name, username, email, password (stored hashed, never in plain text), and optional profile picture and bio.",
                     "School and class data: the schools you belong to, your role, and the class sections you have explicitly joined.",
-                    "Content you create: notes and their PDF files, subjects and chapters you manage, and messages you send in groups or direct chats.",
+                    "Content you create: notes and their PDF files, and subjects and chapters you manage.",
                     "Basic technical data needed to operate the app, such as your app version for updates and errors reported by the app.",
                 ],
             },
             {
                 heading: "Why we store it",
-                body: "Only to run the app: to sign you in, show your schools and classes, deliver your notes and messages to the right people, apply roles and permissions, and provide app updates.",
+                body: "Only to run the app: to sign you in, show your schools and classes, deliver your notes to the right people, apply roles and permissions, and provide app updates.",
             },
             {
                 heading: "Who can see your content",
                 body: "",
                 bullets: [
                     "Note PDFs are private. They are served only to members of the class section the note belongs to, and every request is permission-checked on the server.",
-                    "Messages are visible to the people in that chat or group.",
-                    "Your name, username and profile picture are visible to people in your schools and groups.",
-                    "School and group pictures are visible to members of that school or group.",
+                    "Your name, username and profile picture are visible to people in your schools.",
+                    "School pictures are visible to members of that school.",
                     "School Owners and Teachers can see the members of the schools and classes they manage, and can manage roles and content there.",
                 ],
             },
@@ -118,7 +117,7 @@ const POLICY_CONTENT = {
             },
             {
                 heading: "Your choices",
-                body: "You can edit your profile at any time, leave a school, class section or group, delete notes you're allowed to delete, and delete your account from Profile > Account. Deleting your account removes your profile and login. Content shared into a class or group may remain visible to that class or group where removing it would break other people's records; ask an Owner or Teacher to remove specific content.",
+                body: "You can edit your profile at any time, leave a school or class section, delete notes you're allowed to delete, and delete your account from Profile > Account. Deleting your account removes your profile and login. Content shared into a class may remain visible to that class where removing it would break other people's records; ask an Owner or Teacher to remove specific content.",
             },
             {
                 heading: "Retention and limits",
@@ -145,7 +144,7 @@ const POLICY_CONTENT = {
                 bullets: [
                     "Share notes and study material that belong to your class.",
                     "Use your real identity within your school.",
-                    "Be respectful in groups and direct messages.",
+                    "Be respectful with everyone in your school.",
                     "Only upload files you have the right to share.",
                     "Report anything harmful to an Owner or Teacher.",
                 ],
@@ -193,7 +192,7 @@ const POLICY_CONTENT = {
 
     about: {
         title: "About Notely",
-        intro: "Notely helps schools, teachers and students keep classes, notes and communication in one place.",
+        intro: "Notely helps schools, teachers and students keep classes, subjects and notes in one place.",
         sections: [
             {
                 heading: "How it's organised",
@@ -201,7 +200,7 @@ const POLICY_CONTENT = {
             },
             {
                 heading: "Version",
-                body: "Notely 1.0.0",
+                body: "Notely 1.2.0",
             },
             {
                 heading: "Policies",

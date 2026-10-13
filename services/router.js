@@ -1,10 +1,10 @@
 // ------------------------------------------------------------------
 // services/router.js — tiny hash router for the post-login app shell.
 // ------------------------------------------------------------------
-// Route format: #/home, #/messages/group/12, #/notes/school/3/class/10/A
-// Each top-level section (home, messages, notes, schools, profile)
-// registers itself via Router.register(name, handler) where handler
-// is (container, params) => void|Promise<void>.
+// Route format: #/home, #/notes/school/3/class/10/A
+// Each top-level section (home, notes, schools, profile) registers
+// itself via Router.register(name, handler) where handler is
+// (container, params) => void|Promise<void>.
 // ------------------------------------------------------------------
 
 const Router = {
@@ -76,26 +76,6 @@ const Router = {
         const container = qs("#app-content");
         const navRoot = qs("#nav-root");
 
-        // An open group/DM thread is a full-screen chat surface (like
-        // WhatsApp/Instagram) — the bottom tab bar has no room there and
-        // would otherwise float on top of the composer. The inbox list
-        // itself (#/messages with no thread id) still shows the tab bar.
-        const isChatThread = section === "messages" && (params[0] === "group" || params[0] === "dm");
-        document.body.classList.toggle("nav-hidden", isChatThread);
-        // #app-content.chat-page is what turns the page into a full-bleed,
-        // fixed, no-gutter surface for an open chat thread (see
-        // messages.css). It must be kept in sync with EVERY navigation,
-        // not just ones that land back on the Messages list — otherwise
-        // leaving a chat via the bottom nav (Home/Notes/Schools/Profile)
-        // leaves the class behind and the next page inherits the
-        // full-screen, zero-padding layout meant only for chat.
-        container.classList.toggle("chat-page", isChatThread);
-        // Mobile hides the tab bar on a full-bleed chat thread via
-        // body.nav-hidden (styles/app.css); the desktop sidebar layout
-        // (styles/desktop.css) overrides that to stay visible instead,
-        // since a persistent sidebar makes sense at that width. Always
-        // mounting BottomNav and letting CSS decide visibility (instead
-        // of clearing navRoot here) is what makes that possible.
         mount(navRoot, BottomNav(section));
 
         const handler = this._routes[section];

@@ -32,14 +32,6 @@
         box-shadow: none;
         border-right: 1px solid var(--border);
     }
-    /* Keep the sidebar visible even on the full-bleed chat-thread
-       surface — on a wide screen there's no reason to lose navigation
-       just because a thread is open (see services/router.js, which
-       always mounts BottomNav now and lets nav-hidden control mobile
-       visibility only). */
-    body.nav-hidden .bottom-nav { display: flex; }
-    body.nav-hidden #app-content.chat-page { margin-left: var(--sidebar-width); }
-
     .nav-brand {
         display: flex; align-items: center; gap: 10px;
         padding: 6px 10px 22px;
@@ -58,9 +50,12 @@
         text-align: left;
     }
     .nav-item .material-symbols-rounded { font-size: 22px; }
-    .nav-item:hover { background: var(--surface-alt); }
+    /* Hover feedback only for real pointers — on touch the :hover state
+       would otherwise stick after a tap (classic mobile-web tell). */
+    @media (hover: hover) {
+        .nav-item:hover { background: var(--surface-alt); }
+    }
     .nav-item.active { background: var(--primary-soft); }
-    .nav-badge { top: 10px; right: auto; left: 34px; }
 
     /* ---------------- HEADER + CONTENT ---------------- */
     #app-content {
@@ -83,16 +78,6 @@
        and capping its width the same way stretched it into an oval. */
     #app-content > *:not(.fab) { width: 100%; max-width: 900px; }
 
-    /* The full-bleed chat thread surface intentionally opts out of the
-       centered column (a message thread benefits from more width) but
-       still respects the sidebar. */
-    #app-content.chat-page {
-        display: block;
-        padding: 0;
-        margin-left: var(--sidebar-width);
-    }
-    #app-content.chat-page > *:not(.fab) { max-width: none; }
-
     /* The mobile header uses a negative margin to bleed its background
        to the screen edges within a 16px gutter (see styles/app.css).
        That trick doesn't apply inside a centered, padded column, so
@@ -107,7 +92,6 @@
         bottom: 28px;
         right: max(28px, calc((100vw - var(--sidebar-width) - 900px) / 2 + 12px));
     }
-    body.nav-hidden .fab { bottom: 28px; }
 }
 
 /* Slightly narrower sidebar on the smaller edge of "desktop" so it

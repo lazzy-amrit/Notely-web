@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /app.html
 Disallow: /api/
+Disallow: /archive/
 
 Sitemap: https://notely-edu.pages.dev/sitemap.xml

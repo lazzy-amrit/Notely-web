@@ -178,7 +178,7 @@ const SchoolsPage = {
 
     async _openCreateJoinSheet() {
         const user = await Session.getUser();
-        const body = h("div", { className: "new-chat-sheet" }, [
+        const body = h("div", { className: "school-sheet" }, [
             h("div", { className: "sheet-handle" }),
             h("div", { className: "sheet-kicker" }, "SCHOOLS"),
             h("h3", {}, "Join or create a school"),
@@ -475,7 +475,7 @@ const SchoolsPage = {
         const role = info?.role || null;
         const canManage = this._canManage(role);
 
-        // Groups-style header: back + school icon/name, tapping the identity
+        // School header: back + school icon/name, tapping the identity
         // opens the school information card.
         const topbar = h("div", { className: "school-topbar" }, [
             h("button", { className: "back-btn", type: "button", onClick: () => Router.goBack("schools") },
@@ -1124,8 +1124,6 @@ const SchoolsPage = {
                 return h("div", {
                     className: "card-row", onClick: () => openProfilePreview({
                         id: m.id, username: m.username, name: m.full_name, role: m.role, profile_pic: m.profile_pic,
-                    }, {
-                        onMessage: isSelf ? undefined : (u) => Router.go(`messages/dm/${u.id}`),
                     }),
                 }, [
                     Avatar(m.full_name || m.username, m.profile_pic, "sm"),
@@ -1146,8 +1144,8 @@ const SchoolsPage = {
         mount(container, header, list);
     },
 
-    // Role menu — mirrors the Groups role-changing system exactly: same
-    // action-tile sheet, same "backend is the source of truth" rule
+    // Role menu — same action-tile sheet used across the app, same
+    // "backend is the source of truth" rule
     // (only an Owner may assign Owner, so a Teacher never sees it).
     _openRoleMenu(schoolId, member, assignableRoles) {
         const roleCopy = { Owner: "Full control of the school", Teacher: "Can manage classes and members", Helper: "Can upload notes only", Member: "Regular school member" };
@@ -1187,9 +1185,9 @@ const SchoolsPage = {
         const header = h("div", { className: "app-header" }, [
             h("button", { className: "back-btn", type: "button", onClick: () => Router.goBack(`schools/${schoolId}/class/${encodeURIComponent(className)}`) },
                 [h("span", { className: "material-symbols-rounded" }, "arrow_back")]),
-            h("div", { className: "chat-header-text" }, [
+            h("div", { className: "entity-header-text" }, [
                 h("h1", {}, className),
-                h("span", { className: "chat-header-sub" }, "Members"),
+                h("span", { className: "entity-header-sub" }, "Members"),
             ]),
         ]);
         mount(container, header, this._skeleton());
@@ -1266,9 +1264,9 @@ const SchoolsPage = {
         const header = h("div", { className: "app-header" }, [
             h("button", { className: "back-btn", type: "button", onClick: () => Router.goBack(`schools/${schoolId}/class/${encodeURIComponent(className)}/${encodeURIComponent(section)}/subjects`) },
                 [h("span", { className: "material-symbols-rounded" }, "arrow_back")]),
-            h("div", { className: "chat-header-text" }, [
+            h("div", { className: "entity-header-text" }, [
                 h("h1", {}, `${className} ${section}`),
-                h("span", { className: "chat-header-sub" }, "Members"),
+                h("span", { className: "entity-header-sub" }, "Members"),
             ]),
         ]);
         mount(container, header, this._skeleton());

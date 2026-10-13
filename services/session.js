@@ -174,14 +174,6 @@ const Session = {
                 refreshIssuedAt: data.refresh_token ? Date.now() : undefined,
             });
 
-            // The WS handshake is authenticated with the access JWT that
-            // existed when the socket was opened. Re-open it after a token
-            // refresh so the live connection is never left on an old JWT.
-            if (window.WS?.isConnected?.()) {
-                window.WS.disconnect();
-                window.WS.connect();
-            }
-
             return data.access_token;
         })().finally(() => {
             this._refreshInFlight = null;
@@ -294,10 +286,6 @@ const Session = {
         }
 
         await this.clear();
-
-        if (window.WS && typeof window.WS.disconnect === "function") {
-            window.WS.disconnect();
-        }
 
         const target = "auth/login.html";
 

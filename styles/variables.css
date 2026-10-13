@@ -35,7 +35,7 @@
     --surface-alt: #F1F1F8;
     /* Third layer: sheets/modals sitting on top of a dimmed page. */
     --surface-raised: #FFFFFF;
-    /* Referenced by messages.css as var(--surface-2, ...) */
+    /* Skeleton shimmer highlight (styles/global.css .skeleton::after) */
     --surface-2: rgba(127, 127, 127, .08);
     --input-bg: #FFFFFF;
 
@@ -74,9 +74,6 @@
     --gutter: 16px;
     --sheet-gutter: 18px;
     --sheet-max-width: 520px;
-
-    --bubble-mine: linear-gradient(135deg, var(--primary), var(--primary-light));
-    --bubble-theirs: #FFFFFF;
 }
 
 /* ---------------- DARK THEME ----------------
@@ -130,7 +127,4 @@ html[data-theme="dark"] {
     --shadow-primary: 0 14px 30px rgba(90, 70, 190, .30);
 
     --scrim: rgba(0, 0, 0, .62);
-
-    --bubble-mine: linear-gradient(135deg, #6E58D8, #8A76F0);
-    --bubble-theirs: #22222E;
 }

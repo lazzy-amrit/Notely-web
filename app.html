@@ -15,6 +15,7 @@
      full-screen like an app. -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7B61FF">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101017">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,13 +25,12 @@
 <!-- PDF.js: renders note PDFs onto <canvas> in the full-screen in-app
      viewer (utils/pdf-viewer.js). Loaded from a CDN since this project
      has no bundler; legacy build for broader Android WebView support. -->
-<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
 
 <link rel="stylesheet" href="styles/variables.css">
 <link rel="stylesheet" href="styles/global.css">
 <link rel="stylesheet" href="styles/app.css">
 <link rel="stylesheet" href="styles/desktop.css">
-<link rel="stylesheet" href="pages/messages/messages.css">
 <link rel="stylesheet" href="pages/notes/notes.css">
 <link rel="stylesheet" href="pages/schools/schools.css">
 <link rel="stylesheet" href="pages/profile/profile.css">
@@ -43,60 +43,52 @@
     <div id="nav-root"></div>
 </div>
 
-<!-- Core -->
-<!-- Theme first: sets data-theme on <html> before first paint so a
-     dark-mode launch never flashes the light palette. -->
+<!-- Everything below theme.js can load in parallel (defer keeps the
+     declared execution order) instead of one-blocking-the-next. theme.js
+     itself stays synchronous so the palette is applied before first paint. -->
 <script src="services/theme.js"></script>
-<script src="api/config.js"></script>
-<script src="utils/file-compression.js"></script>
-<script src="services/session.js"></script>
-<script src="services/cache.js"></script>
-<script src="api/http.js"></script>
-<script src="services/storage.js"></script>
-<script src="api/auth.js"></script>
-<script src="api/schools.js"></script>
-<script src="api/classes.js"></script>
-<script src="api/subjects.js"></script>
-<script src="api/groups.js"></script>
-<script src="api/users.js"></script>
-<script src="api/messages.js"></script>
-<script src="api/notes.js"></script>
-<script src="api/stars.js"></script>
-<script src="api/notifications.js"></script>
+<script defer src="api/config.js"></script>
+<script defer src="utils/file-compression.js"></script>
+<script defer src="services/session.js"></script>
+<script defer src="services/cache.js"></script>
+<script defer src="api/http.js"></script>
+<script defer src="services/storage.js"></script>
+<script defer src="api/auth.js"></script>
+<script defer src="api/schools.js"></script>
+<script defer src="api/classes.js"></script>
+<script defer src="api/subjects.js"></script>
+<script defer src="api/users.js"></script>
+<script defer src="api/notes.js"></script>
+<script defer src="api/stars.js"></script>
 
-<script src="utils/dom.js"></script>
-<script src="utils/optimistic.js"></script>
-<script src="utils/images-to-pdf.js"></script>
-<script src="utils/pdf-viewer.js"></script>
-<script src="utils/format.js"></script>
-<script src="utils/entity-cache.js"></script>
+<script defer src="utils/dom.js"></script>
+<script defer src="utils/optimistic.js"></script>
+<script defer src="utils/images-to-pdf.js"></script>
+<script defer src="utils/pdf-viewer.js"></script>
+<script defer src="utils/format.js"></script>
+<script defer src="utils/entity-cache.js"></script>
 
-<script src="services/toast.js"></script>
-<script src="services/sheet.js"></script>
-<script src="services/websocket.js"></script>
-<script src="services/router.js"></script>
-<script src="services/membership.js"></script>
-<script src="services/notifications.js"></script>
+<script defer src="services/toast.js"></script>
+<script defer src="services/sheet.js"></script>
+<script defer src="services/router.js"></script>
+<script defer src="services/membership.js"></script>
 
-<script src="components/avatar.js"></script>
-<script src="components/empty-state.js"></script>
-<script src="components/confirm.js"></script>
-<script src="components/tiny-menu.js"></script>
-<script src="components/profile-preview.js"></script>
-<script src="components/bottom-nav.js"></script>
+<script defer src="components/avatar.js"></script>
+<script defer src="components/empty-state.js"></script>
+<script defer src="components/confirm.js"></script>
+<script defer src="components/tiny-menu.js"></script>
+<script defer src="components/profile-preview.js"></script>
+<script defer src="components/bottom-nav.js"></script>
 
 <!-- Pages -->
-<script src="pages/home/home.js"></script>
-<script src="pages/messages/messages.js"></script>
-<script src="pages/messages/chat.js"></script>
-<script src="pages/messages/dm-search.js"></script>
-<script src="pages/notes/notes.js"></script>
-<script src="pages/schools/subjects.js"></script>
-<script src="pages/schools/schools.js"></script>
-<script src="pages/profile/profile.js"></script>
-<script src="pages/policies/policies.js"></script>
+<script defer src="pages/home/home.js"></script>
+<script defer src="pages/notes/notes.js"></script>
+<script defer src="pages/schools/subjects.js"></script>
+<script defer src="pages/schools/schools.js"></script>
+<script defer src="pages/profile/profile.js"></script>
+<script defer src="pages/policies/policies.js"></script>
 
-<script src="app.js"></script>
+<script defer src="app.js"></script>
 
 </body>
 </html>
