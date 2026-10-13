@@ -1,33 +1,19 @@
 // ----------------------------------
 // Google One Tap + "Sign in with Google" button  ->  POST /auth/google
+//
+// Existing Google users land straight in the app. First-time users get
+// needs_role from the backend — the credential is handed to
+// google-onboard.html (a proper welcome + role + teacher-details
+// screen) instead of an inline sheet.
 // ----------------------------------
 
 (() => {
   const googleError = document.getElementById("googleError");
-  const sheet = document.getElementById("googleRoleSheet");
-  const sheetText = document.getElementById("googleRoleText");
-  const roleButtons = sheet.querySelectorAll("[data-role]");
-  const cancelBtn = document.getElementById("googleRoleCancel");
 
-  let pendingCredential = null;
   let busy = false;
 
   function setError(msg) {
     googleError.textContent = msg || "";
-  }
-
-  function showSheet(name) {
-    sheetText.textContent = name
-      ? `Welcome, ${name}! Choose how you'll use Notely.`
-      : "Choose how you'll use Notely.";
-    sheet.classList.add("show");
-    sheet.setAttribute("aria-hidden", "false");
-  }
-
-  function hideSheet() {
-    sheet.classList.remove("show");
-    sheet.setAttribute("aria-hidden", "true");
-    roleButtons.forEach((b) => (b.disabled = false));
   }
 
   async function sendToBackend(credential, role) {
@@ -57,27 +43,29 @@
     return data;
   }
 
-  async function handleCredential(credential, role) {
+  async function handleCredential(credential) {
     if (busy) return;
     busy = true;
     setError("");
 
     try {
-      const data = await sendToBackend(credential, role);
+      const data = await sendToBackend(credential, null);
 
-      // First-time Google user: ask for a role, then resend.
+      // First-time Google user: hand off to the onboarding screen
+      // (welcome -> role -> optional school details).
       if (data.needs_role) {
-        pendingCredential = credential;
-        showSheet((data.name || "").split(" ")[0]);
+        Memory.set("google_onboard", {
+          credential,
+          name: data.name || "",
+          picture: data.picture || "",
+        });
+        window.location.href = "google-onboard.html";
         return;
       }
-
-      hideSheet();
 
       await Session.setTokens(data);
       window.location.href = "../app.html";
     } catch (err) {
-      hideSheet();
       setError(err.message);
     } finally {
       busy = false;
@@ -87,21 +75,8 @@
   // Google calls this with { credential } after One Tap / button click
   function onGoogleResponse(res) {
     if (!res?.credential) return;
-    handleCredential(res.credential, null);
+    handleCredential(res.credential);
   }
-
-  roleButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (!pendingCredential) return;
-      roleButtons.forEach((b) => (b.disabled = true));
-      handleCredential(pendingCredential, btn.dataset.role);
-    });
-  });
-
-  cancelBtn.addEventListener("click", () => {
-    pendingCredential = null;
-    hideSheet();
-  });
 
   function initGoogle() {
     if (!window.google?.accounts?.id) return false;

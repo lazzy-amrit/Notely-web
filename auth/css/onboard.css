@@ -1,0 +1,676 @@
+/* ------------------------------------------------------------
+   auth/css/onboard.css
+   First-time Google sign-up onboarding (google-onboard.html):
+   Step 1 — welcome + role picker, Step 2 — teacher school details.
+   Reuses the visual language of role.css (cards) and register.css
+   (inputs). theme.css (loaded last) re-themes every token below
+   for dark mode — no dark overrides needed in this file.
+   ------------------------------------------------------------ */
+
+:root{
+
+    --primary:#7B61FF;
+    --primary-light:#9E8CFF;
+
+    --text:#1B1B1F;
+    --muted:#74747E;
+
+    --bg:#F6F7FC;
+    --surface:#FFFFFF;
+    --border:#E8E8EF;
+    --danger:#C0392B;
+
+    --teacher-bg:#F7F2FF;
+    --student-bg:#EEF7FF;
+
+    --radius:28px;
+
+}
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+    -webkit-tap-highlight-color:transparent;
+
+}
+
+html{
+
+    font-size:16px;
+
+}
+
+body{
+
+    font-family:"Outfit",sans-serif;
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    min-height:100dvh;
+
+}
+
+button, a { touch-action: manipulation; }
+
+.hidden { display: none !important; }
+
+/* ---------------- SCREEN ---------------- */
+
+.screen{
+
+    min-height:100dvh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    padding:
+
+        max(20px,env(safe-area-inset-top))
+
+        18px
+
+        max(20px,env(safe-area-inset-bottom));
+
+    gap:22px;
+
+}
+
+/* Step switching: only one .step is visible at a time. The entrance
+   is a short fade + rise on the compositor. */
+.step{ display:flex; flex-direction:column; flex:1; gap:22px; }
+.step.hidden{ display:none; }
+.step.enter{ animation:step-in .3s cubic-bezier(.22,1,.36,1); }
+
+@keyframes step-in{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .step.enter{ animation:none; }
+    .card, .check, #continueBtn, #finishBtn{ transition:none; }
+}
+
+/* ---------------- HEADER ---------------- */
+
+.header{
+
+    text-align:center;
+
+}
+
+.app-logo{
+
+    width:60px;
+    height:60px;
+
+    margin:0 auto 18px;
+
+    border-radius:20px;
+
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-light)
+    );
+
+    color:#fff;
+
+    font-size:26px;
+    font-weight:800;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    box-shadow:
+        0 18px 40px rgba(123,97,255,.22);
+
+}
+
+/* Google profile picture — makes the welcome feel personal. */
+.google-avatar{
+
+    width:72px;
+    height:72px;
+
+    margin:0 auto 14px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:3px solid #fff;
+
+    box-shadow:
+        0 10px 26px rgba(20,20,40,.14);
+
+}
+
+.header h1{
+
+    font-size:2rem;
+
+    font-weight:800;
+
+}
+
+.header p{
+
+    margin-top:8px;
+
+    color:var(--muted);
+
+    font-size:.95rem;
+
+}
+
+/* Step 1 has a back-to-login affordance (top-left, like register). */
+.header .back-btn{
+
+    position:absolute;
+
+    left:max(18px,env(safe-area-inset-left));
+    top:max(20px,env(safe-area-inset-top));
+
+    width:46px;
+    height:46px;
+
+    border:none;
+    border-radius:16px;
+
+    background:var(--surface);
+    box-shadow:0 6px 18px rgba(20,20,40,.08);
+
+    color:var(--text);
+
+    font-size:20px;
+
+    cursor:pointer;
+
+}
+
+.screen{ position:relative; }
+
+/* ---------------- CARDS (role picker) ---------------- */
+
+.cards{
+
+    flex:1;
+
+    display:flex;
+
+    gap:14px;
+
+    align-items:stretch;
+
+}
+
+.card{
+
+    flex:1;
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+    border:none;
+
+    border-radius:var(--radius);
+
+    overflow:hidden;
+
+    padding:14px;
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        outline .25s ease;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.08);
+
+}
+
+.card:active{
+
+    transform:scale(.98);
+
+}
+
+.teacher{
+
+    background:var(--teacher-bg);
+
+}
+
+.student{
+
+    background:var(--student-bg);
+
+}
+
+/* decorative circle */
+
+.card::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    border-radius:50%;
+
+    left:50%;
+
+    top:-55px;
+
+    transform:translateX(-50%);
+
+    opacity:.55;
+
+}
+
+.teacher::before{
+
+    background:#E6D9FF;
+
+}
+
+.student::before{
+
+    background:#CDEBFF;
+
+}
+
+.check{
+
+    position:absolute;
+
+    right:14px;
+    top:14px;
+
+    width:34px;
+    height:34px;
+
+    border-radius:50%;
+
+    background:var(--primary);
+
+    color:#fff;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-weight:700;
+
+    opacity:0;
+
+    transform:scale(.6);
+
+    transition:.25s;
+
+    z-index:5;
+
+}
+
+.card.selected{
+
+    transform:translateY(-6px);
+
+    box-shadow:
+        0 22px 40px rgba(123,97,255,.18);
+
+    outline:3px solid var(--primary);
+
+}
+
+.card.selected .check{
+
+    opacity:1;
+
+    transform:scale(1);
+
+}
+
+.image{
+
+    flex:1;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:flex-end;
+
+    position:relative;
+
+    z-index:2;
+
+}
+
+.teacher img{
+
+    width:115%;
+
+    max-height:300px;
+
+    object-fit:contain;
+
+}
+
+.student img{
+
+    width:135%;
+
+    max-height:300px;
+
+    object-fit:contain;
+
+}
+
+.card h2{
+
+    text-align:center;
+
+    font-size:1.3rem;
+
+    font-weight:700;
+
+    margin-top:10px;
+
+    position:relative;
+
+    z-index:2;
+
+}
+
+.card p{
+
+    text-align:center;
+
+    color:var(--muted);
+
+    font-size:.8rem;
+
+    margin-top:4px;
+
+    position:relative;
+
+    z-index:2;
+
+}
+
+/* ---------------- TINY NOTE ---------------- */
+
+.tiny-note{
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:7px;
+
+    color:var(--muted);
+
+    font-size:.8rem;
+
+    text-align:center;
+
+}
+
+.tiny-note .material-symbols-rounded{
+
+    font-size:16px;
+
+    flex:0 0 auto;
+
+    color:var(--primary);
+
+}
+
+/* ---------------- FORM (step 2) ---------------- */
+
+#detailsForm{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+    flex:1;
+
+}
+
+.teacher-card{
+
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+    padding:20px 18px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+.teacher-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+.teacher-header h3{
+
+    font-size:1.05rem;
+
+}
+
+.skip-school{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:var(--muted);
+
+    font-size:.85rem;
+
+    cursor:pointer;
+
+}
+
+.skip-school input{
+
+    width:18px;
+    height:18px;
+
+    accent-color:var(--primary);
+
+}
+
+.input-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+.input-group label{
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+}
+
+.input-group label span{
+
+    color:var(--muted);
+
+    font-weight:500;
+
+}
+
+input{
+
+    width:100%;
+
+    height:58px;
+
+    border:2px solid var(--border);
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+    padding:0 18px;
+
+    font-size:1rem;
+
+    font-family:inherit;
+
+    color:var(--text);
+
+    transition:.2s;
+
+}
+
+input:focus{
+
+    outline:none;
+
+    border-color:var(--primary);
+
+    box-shadow:
+        0 0 0 5px rgba(123,97,255,.08);
+
+}
+
+input:disabled{
+
+    opacity:.5;
+
+}
+
+/* ---------------- ERRORS ---------------- */
+
+.form-error{
+
+    color:var(--danger);
+
+    font-size:.85rem;
+
+    min-height:1.2em;
+
+    text-align:center;
+
+}
+
+/* ---------------- BUTTONS ---------------- */
+
+#continueBtn,
+#finishBtn{
+
+    margin-top:auto;
+
+    height:60px;
+
+    border:none;
+
+    border-radius:20px;
+
+    background:#D8D8DE;
+
+    color:#fff;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+    font-family:inherit;
+
+    transition:.25s;
+
+}
+
+#continueBtn.active,
+#finishBtn.active{
+
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-light)
+    );
+
+    box-shadow:
+        0 18px 35px rgba(123,97,255,.25);
+
+}
+
+#continueBtn:disabled,
+#finishBtn:disabled{
+
+    cursor:not-allowed;
+
+}
+
+/* ---------------- SMALL DEVICES ---------------- */
+
+@media (max-height:700px){
+
+    .header h1{
+
+        font-size:1.7rem;
+
+    }
+
+    .header p{
+
+        font-size:.9rem;
+
+    }
+
+    .teacher img,
+    .student img{
+
+        max-height:220px;
+
+    }
+
+    .card h2{
+
+        font-size:1.1rem;
+
+    }
+
+}
