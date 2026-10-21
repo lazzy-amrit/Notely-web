@@ -9,7 +9,7 @@
 // runtime host-recovery/override mechanism.
 // ------------------------------------------------------------------
 
-const DEFAULT_API_HOST = "https://a64651-7798.c.onjrnm.link";
+const DEFAULT_API_HOST = "https://balancer-nteoly-production.up.railway.app";
 
 const CONFIG = {
   API_HOST: DEFAULT_API_HOST,
