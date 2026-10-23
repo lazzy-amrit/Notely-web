@@ -1,235 +1,208 @@
 // ----------------------------------
-// Notely Reset Password
+// Notely Reset Password — Step 1: Verify OTP
 // ----------------------------------
 
 const reset = Memory.get("reset");
 
 
-if (!reset) {
+if (!reset || !reset.email) {
 
-    window.location.href = "password.html";
+    window.location.replace("password.html");
 
 }
 
+const EMAIL = reset.email;
+
+document.getElementById("emailDisplay").textContent = EMAIL;
 
 // ----------------------------------
 // Elements
 // ----------------------------------
 
-const otp = document.getElementById("otp");
+const inputs = document.querySelectorAll(".otp");
 
-const newPassword = document.getElementById("newPassword");
+const verifyBtn = document.getElementById("verifyBtn");
 
-const confirmPassword = document.getElementById("confirmPassword");
+const otpError = document.getElementById("otpError");
 
-const resetBtn = document.getElementById("resetBtn");
-
-const resetError = document.getElementById("resetError");
-
-
-// Password eyes
-
-const toggleNewPassword = document.getElementById("toggleNewPassword");
-
-const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
-
-const newEyeIcon = document.getElementById("newEyeIcon");
-
-const confirmEyeIcon = document.getElementById("confirmEyeIcon");
+const backBtn = document.getElementById("backBtn");
 
 
 // ----------------------------------
-// Password Toggle
+// Back
 // ----------------------------------
 
-toggleNewPassword.addEventListener("click", () => {
+backBtn.addEventListener("click", () => {
 
-    if (newPassword.type === "password") {
-
-        newPassword.type = "text";
-
-        newEyeIcon.textContent = "visibility_off";
-
-    } else {
-
-        newPassword.type = "password";
-
-        newEyeIcon.textContent = "visibility";
-
-    }
-
-});
-
-
-toggleConfirmPassword.addEventListener("click", () => {
-
-    if (confirmPassword.type === "password") {
-
-        confirmPassword.type = "text";
-
-        confirmEyeIcon.textContent = "visibility_off";
-
-    } else {
-
-        confirmPassword.type = "password";
-
-        confirmEyeIcon.textContent = "visibility";
-
-    }
+    history.back();
 
 });
 
 
 // ----------------------------------
-// Enable Button
+// OTP input handling
 // ----------------------------------
 
-function checkForm() {
+inputs.forEach((input, index) => {
 
-    const valid =
-        otp.value.trim().length === 6 &&
-        newPassword.value.length >= 6 &&
-        confirmPassword.value.length >= 6;
+    input.addEventListener("input", () => {
 
+        input.value = input.value.replace(/\D/g, "").slice(0, 1);
 
-    resetBtn.disabled = !valid;
+        if (input.value && index < inputs.length - 1) {
 
-
-    resetBtn.classList.toggle(
-        "active",
-        valid
-    );
-
-}
-
-
-[
-    otp,
-    newPassword,
-    confirmPassword
-
-].forEach(input => {
-
-    input.addEventListener(
-        "input",
-        () => {
-
-            resetError.textContent = "";
-
-            checkForm();
+            inputs[index + 1].focus();
 
         }
-    );
+
+        otpError.textContent = "";
+
+        checkOTP();
+
+    });
+
+    input.addEventListener("keydown", e => {
+
+        if (e.key === "Backspace" && input.value === "" && index > 0) {
+
+            inputs[index - 1].focus();
+
+        }
+
+    });
 
 });
 
+document.addEventListener("paste", e => {
+
+    const pasted = (e.clipboardData?.getData("text") || "").trim();
+
+    if (!/^\d{6}$/.test(pasted)) return;
+
+    e.preventDefault();
+
+    pasted.split("").forEach((digit, i) => {
+
+        inputs[i].value = digit;
+
+    });
+
+    inputs[inputs.length - 1].focus();
+
+    otpError.textContent = "";
+
+    checkOTP();
+
+});
+
+function checkOTP() {
+
+    const otp = [...inputs].map(i => i.value).join("");
+
+    verifyBtn.disabled = otp.length !== 6;
+
+    verifyBtn.classList.toggle("active", otp.length === 6);
+
+}
+
 
 // ----------------------------------
-// Reset Password
+// Verify OTP -> receive one-time code
 // ----------------------------------
 
-document
-.getElementById("resetForm")
-.addEventListener("submit", async e => {
+let isVerifying = false;
 
+verifyBtn.addEventListener("click", async () => {
 
-e.preventDefault();
+    if (isVerifying) return;
 
+    const otp = [...inputs].map(i => i.value).join("");
 
-if (resetBtn.disabled) return;
+    if (otp.length !== 6) return;
 
+    isVerifying = true;
 
+    verifyBtn.disabled = true;
 
-resetBtn.disabled = true;
+    verifyBtn.textContent = "Verifying...";
 
-resetBtn.textContent = "Updating...";
+    otpError.textContent = "";
 
+    let data;
 
-resetError.textContent = "";
+    try {
 
-const response = await fetch(
+        data = await AuthApi.verifyResetOtp(EMAIL, otp);
 
-    `${CONFIG.API_HOST}/account/verify_otp`,
+    } catch (err) {
 
-    {
+        isVerifying = false;
 
-        method:"POST",
+        verifyBtn.disabled = false;
 
-        headers:{
+        verifyBtn.textContent = "Verify Code";
 
-            "Content-Type":"application/json"
+        if (err?.status === 429) {
 
-        },
+            otpError.textContent =
 
-        body:JSON.stringify({
+                err?.detail || "Too many attempts. Please wait a moment and try again.";
 
-            email: reset.email,
+        } else if (err?.status === 401) {
 
-            otp: otp.value.trim(),
+            otpError.textContent = err?.detail || "Incorrect code. Please try again.";
 
-            new_password: newPassword.value,
+            inputs.forEach(i => (i.value = ""));
 
-            confirm_password: confirmPassword.value
+            inputs[0].focus();
 
-        })
+        } else {
+
+            otpError.textContent = err?.detail || "Verification failed. Please try again.";
+
+        }
+
+        checkOTP();
+
+        return;
 
     }
 
-).catch(() => null);
+    // Backend returns a one-time code to use in the password-change step.
+    const code = data?.code;
 
-if (!response) {
+    if (!code) {
 
-    resetBtn.disabled = false;
+        isVerifying = false;
 
-    resetBtn.textContent = "Reset Password →";
+        verifyBtn.disabled = false;
 
-    resetError.textContent = "Unable to connect. Check your connection and try again.";
+        verifyBtn.textContent = "Verify Code";
 
-    return;
+        otpError.textContent = "Verification succeeded but no code was returned.";
 
-}
+        return;
 
-const data = await response.json().catch(() => null);
+    }
 
+    // Carry the email + one-time code to the new-password screen.
+    Memory.set("reset", {
 
-if (!response.ok) {
+        email: EMAIL,
 
+        code
 
-    resetBtn.disabled = false;
+    });
 
-    resetBtn.textContent = "Reset Password →";
+    isVerifying = false;
 
+    verifyBtn.textContent = "Verified ✓";
 
-    resetError.textContent =
-        (response.status === 429
-            ? "Too many attempts. Please wait a moment and try again."
-            : data && data.detail) || "Unable to reset password";
+    setTimeout(() => {
 
+        window.location.href = "new_password.html";
 
-    return;
-
-
-}
-
-
-
-
-resetBtn.textContent = "Updated ✓";
-
-
-
-Memory.remove("reset");
-
-
-
-setTimeout(() => {
-
-
-    window.location.href = "login.html";
-
-
-},1500);
-
-
+    }, 600);
 
 });
+

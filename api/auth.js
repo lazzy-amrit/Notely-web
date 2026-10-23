@@ -68,11 +68,21 @@ const AuthApi = {
         return Api.patch(`/account/forgot_pass?email=${encodeURIComponent(email)}`, undefined, { skipAuth: true });
     },
 
-    // POST /account/verify_otp  (JSON: email, otp, new_password, confirm_password)
-    resetPassword(email, otp, newPassword, confirmPassword) {
+    // POST /account/verify_otp  step 1: type="verify" (email + otp) -> returns a one-time code
+    verifyResetOtp(email, otp) {
         return Api.post("/account/verify_otp", {
+            type: "verify",
             email,
             otp,
+        }, { skipAuth: true });
+    },
+
+    // POST /account/verify_otp  step 2: type="change" (email + code + new/confirm password) -> changes password
+    resetPassword(email, code, newPassword, confirmPassword) {
+        return Api.post("/account/verify_otp", {
+            type: "change",
+            email,
+            code,
             new_password: newPassword,
             confirm_password: confirmPassword,
         }, { skipAuth: true });
