@@ -21,24 +21,20 @@
 .app-header {
     min-height: var(--header-height);
     margin: 0 -16px 6px;
-    padding: max(8px, env(safe-area-inset-top)) 16px 8px;
+    padding: max(6px, env(safe-area-inset-top)) 16px 6px;
     display: flex; align-items: center; gap: 10px;
-    background: var(--surface-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
+    background: var(--bg);
     position: sticky; top: 0; z-index: 50;
 }
 .app-header h1 {
     font-size: 1.25rem; font-weight: 800; line-height: 1.2;
-    letter-spacing: -0.015em;
     flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .app-header > .avatar { margin: 0; }
 /* Two-line header title (title + small sub-label), used by member-list
    screens ("Class A • Members"). */
 .entity-header-text { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-.entity-header-text h1 { font-size: 1.05rem; line-height: 1.2; letter-spacing: -0.015em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entity-header-text h1 { font-size: 1.05rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .entity-header-sub { font-size: .76rem; color: var(--muted); font-weight: 500; }
 /* Tappable header title (Part 2: tapping the class name opens its info
    card) — reset to a plain button so it inherits the same h1 styling. */
@@ -49,10 +45,9 @@
 .class-title-btn h1 { flex: initial; min-width: 0; }
 .app-header .back-btn {
     width: 40px; height: 40px; flex: 0 0 auto;
-    border: 1px solid var(--border); border-radius: 50%; padding: 0;
+    border: none; border-radius: 50%; padding: 0;
     background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text);
     display: grid; place-items: center; cursor: pointer;
-    transition: transform .15s ease, background .15s ease;
 }
 .app-header .back-btn:active { transform: scale(.92); }
 .app-header .back-btn .material-symbols-rounded { font-size: 22px; line-height: 1; }
@@ -60,10 +55,9 @@
    ends of every header are optically balanced. */
 .app-header .header-action {
     width: 40px; height: 40px; flex: 0 0 auto;
-    border: 1px solid var(--border); border-radius: 50%; padding: 0;
+    border: none; border-radius: 50%; padding: 0;
     background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text);
     display: grid; place-items: center; cursor: pointer;
-    transition: transform .15s ease, background .15s ease;
 }
 .app-header .header-action:active { transform: scale(.92); }
 .app-header .header-action .material-symbols-rounded { font-size: 22px; }
@@ -77,7 +71,7 @@
 }
 
 
-#app-content.page-enter { animation: pageFadeIn .22s cubic-bezier(0.16, 1, 0.3, 1); }
+#app-content.page-enter { animation: pageFadeIn .22s ease-out; }
 @keyframes pageFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
     #app-content.page-enter { animation: none; }
@@ -89,33 +83,24 @@
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 100;
     height: calc(var(--nav-height) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
-    background: var(--surface-glass);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: var(--surface);
     display: flex;
-    align-items: center;
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, .04);
+    box-shadow: 0 -2px 20px rgba(20,20,40,.06);
 }
 .nav-item {
     flex: 1; border: none; background: none; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 3px; color: var(--muted);
-    font-size: .69rem; font-weight: 600; position: relative; height: 100%;
-    cursor: pointer; transition: color .18s ease, transform .15s ease;
+    font-size: .68rem; font-weight: 600; position: relative;
 }
-.nav-item:active { transform: scale(.92); }
-.nav-item .material-symbols-rounded { font-size: 24px; transition: transform .18s ease; }
-.nav-item.active { color: var(--primary); font-weight: 700; }
-.nav-item.active .material-symbols-rounded {
-    font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 24;
-    transform: translateY(-1px);
-}
+.nav-item .material-symbols-rounded { font-size: 24px; }
+.nav-item.active { color: var(--primary); }
+.nav-item.active .material-symbols-rounded { font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24; }
 
 /* ---------------- DASHBOARD ---------------- */
 
-.greeting { margin: 10px 2px 20px; }
-.greeting h1 { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; }
-.greeting p { color: var(--muted); font-size: .92rem; margin-top: 3px; }
+.greeting { margin: 6px 2px 18px; }
+.greeting h1 { font-size: 1.5rem; font-weight: 800; }
+.greeting p { color: var(--muted); font-size: .9rem; margin-top: 2px; }
 
 .quick-actions-wrap { position: relative; margin-bottom: 22px; }
 .quick-actions { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
@@ -129,29 +114,16 @@
 }
 .quick-action {
     flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-    padding: 14px 16px; box-shadow: var(--shadow-sm); min-width: 80px;
-    cursor: pointer;
-    transition: transform .18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .18s ease, border-color .18s ease;
+    background: var(--surface); border: none; border-radius: var(--radius-lg);
+    padding: 14px 18px; box-shadow: var(--shadow-sm); min-width: 84px;
 }
-.quick-action:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: rgba(123, 97, 255, 0.35);
-}
-.quick-action:active { transform: scale(.95); }
 .quick-action .material-symbols-rounded { font-size: 26px; color: var(--primary); }
-.quick-action span:last-child { font-size: .76rem; font-weight: 700; }
+.quick-action span:last-child { font-size: .76rem; font-weight: 600; }
 
 .stat-row { display: flex; gap: 10px; margin-bottom: 22px; }
-.stat-card {
-    flex: 1; background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 16px 12px; box-shadow: var(--shadow-sm); text-align: center;
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-.stat-card .stat-num { font-size: 1.55rem; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
-.stat-card .stat-label { font-size: .78rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
+.stat-card { flex: 1; background: var(--surface); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); text-align: center; }
+.stat-card .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+.stat-card .stat-label { font-size: .78rem; color: var(--muted); margin-top: 2px; }
 
 /* ---------------- SEARCH BAR ---------------- */
 

@@ -1,9 +1,6 @@
 // ------------------------------------------------------------------
 // pages/spaces/spaces.js — Student Space feature
-// Routes:
-//   spaces                            -> Space list & discovery
-//   spaces/:spaceId                   -> Space root (folders + files)
-//   spaces/:spaceId/folder/:folderId  -> Subfolder view
+// Normal Notely UI (entity-list / entity-row / sheets)
 // ------------------------------------------------------------------
 
 const SpacesPage = {
@@ -11,18 +8,18 @@ const SpacesPage = {
         const user = await Session.getUser();
         const role = (user?.role || "").toLowerCase();
 
-        // Backend strictly restricts student spaces to students
+        // Backend restricts student spaces to students
         if (role && role !== "student") {
             const header = h("div", { className: "app-header" }, [
                 h("button", { className: "back-btn", type: "button", onClick: () => Router.go("home") },
                     [h("span", { className: "material-symbols-rounded" }, "arrow_back")]),
                 h("h1", {}, "Student Spaces"),
             ]);
-            const card = h("div", { className: "card", style: "padding:24px;text-align:center;margin-top:20px;" }, [
-                h("span", { className: "material-symbols-rounded", style: "font-size:48px;color:var(--primary);margin-bottom:12px;" }, "folder_shared"),
-                h("h3", { style: "margin-bottom:8px;" }, "Exclusive to Students"),
-                h("p", { className: "profile-meta", style: "margin-bottom:20px;" },
-                    "Student Spaces are shared collaborative folders for students to share PDFs and study notes together. You're currently signed in with a Teacher account."),
+            const card = h("div", { className: "card", style: "padding:20px;text-align:center;margin-top:16px;" }, [
+                h("span", { className: "material-symbols-rounded", style: "font-size:44px;color:var(--primary);margin-bottom:8px;" }, "folder_shared"),
+                h("h3", { style: "margin-bottom:6px;" }, "Students Only"),
+                h("p", { className: "profile-meta", style: "margin-bottom:16px;" },
+                    "Student Spaces are collaborative folders for students to share PDFs together. You are currently logged in with a Teacher account."),
                 h("button", { className: "btn btn-primary", onClick: () => Router.go("home") }, "Back to Home"),
             ]);
             mount(container, header, card);
@@ -61,17 +58,17 @@ const SpacesPage = {
     async _renderList(container) {
         const header = h("div", { className: "app-header" }, [
             h("h1", {}, "Student Spaces"),
-            h("div", { style: "margin-left:auto;display:flex;gap:8px;" }, [
+            h("div", { className: "spaces-header-actions" }, [
                 h("button", {
                     className: "header-action",
                     type: "button",
-                    title: "Join with Code",
+                    title: "Join with code",
                     onClick: () => this._openJoinSpaceSheet(),
                 }, [h("span", { className: "material-symbols-rounded" }, "login")]),
                 h("button", {
                     className: "header-action",
                     type: "button",
-                    title: "Create Space",
+                    title: "Create space",
                     onClick: () => this._openCreateSpaceSheet(),
                 }, [h("span", { className: "material-symbols-rounded" }, "add")]),
             ]),
@@ -93,87 +90,62 @@ const SpacesPage = {
             return;
         }
 
-        const topBanner = h("div", { className: "spaces-hero-card" }, [
-            h("div", { className: "spaces-hero-text" }, [
-                h("h2", {}, "Collaborative Spaces"),
-                h("p", {}, "Shared study folders for your class groups, clubs, and peers. Upload and read PDFs together."),
-            ]),
-            h("div", { className: "spaces-hero-actions" }, [
-                h("button", {
-                    className: "btn btn-primary btn-sm",
-                    type: "button",
-                    onClick: () => this._openCreateSpaceSheet(),
-                }, [h("span", { className: "material-symbols-rounded" }, "add"), " New Space"]),
-                h("button", {
-                    className: "btn btn-ghost btn-sm",
-                    type: "button",
-                    onClick: () => this._openJoinSpaceSheet(),
-                }, [h("span", { className: "material-symbols-rounded" }, "vpn_key"), " Join Code"]),
-            ]),
+        const banner = h("div", { className: "spaces-info-banner" }, [
+            h("p", {}, "Shared study folders for classmates and peer groups. Upload and read PDFs together."),
+        ]);
+
+        const actionRow = h("div", { className: "spaces-action-row" }, [
+            h("button", {
+                className: "btn btn-primary btn-sm",
+                type: "button",
+                onClick: () => this._openCreateSpaceSheet(),
+            }, [h("span", { className: "material-symbols-rounded" }, "add"), " New Space"]),
+            h("button", {
+                className: "btn btn-ghost btn-sm",
+                type: "button",
+                onClick: () => this._openJoinSpaceSheet(),
+            }, [h("span", { className: "material-symbols-rounded" }, "key"), " Join with Code"]),
         ]);
 
         if (!spaces.length) {
-            mount(container, header, topBanner, EmptyState({
+            mount(container, header, banner, actionRow, EmptyState({
                 icon: "folder_shared",
                 title: "No student spaces yet",
-                subtitle: "Create a shared folder for your peers or join an existing space with an invite code.",
-                actionLabel: "Create a Space",
+                subtitle: "Create a shared folder or join an existing space with an invite code.",
+                actionLabel: "Create Space",
                 onAction: () => this._openCreateSpaceSheet(),
             }));
             return;
         }
 
-        const listWrap = h("div", { className: "spaces-grid" }, spaces.map(sp => {
-            const card = h("div", {
-                className: "space-tile card",
+        const list = h("div", { className: "entity-list" }, spaces.map(sp => {
+            const row = h("div", {
+                className: "entity-row",
                 role: "button",
                 tabindex: "0",
                 onClick: () => Router.go(`spaces/${sp.id}`),
             }, [
-                h("div", { className: "space-tile-top" }, [
-                    h("div", { className: "space-icon-badge" }, [
-                        h("span", { className: "material-symbols-rounded" }, "folder_shared"),
-                    ]),
-                    h("div", { className: "space-tile-badges" }, [
-                        sp.is_owner ? h("span", { className: "badge badge-owner" }, "Owner") : null,
-                    ].filter(Boolean)),
-                    h("button", {
-                        className: "space-tile-menu-btn",
-                        type: "button",
-                        title: "Options",
-                        onClick: (e) => {
-                            e.stopPropagation();
-                            this._openSpaceMenu(sp);
-                        },
-                    }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
+                h("div", { className: "entity-badge" }, [
+                    h("span", { className: "material-symbols-rounded" }, "folder_shared"),
                 ]),
-                h("h3", { className: "space-tile-title" }, sp.name),
-                h("div", { className: "space-tile-meta" }, [
-                    h("span", { className: "space-meta-item" }, [
-                        h("span", { className: "material-symbols-rounded" }, "group"),
-                        `${sp.memberCount || 1} ${sp.memberCount === 1 ? "member" : "members"}`,
-                    ]),
-                    sp.join_code ? h("span", {
-                        className: "space-code-chip",
-                        title: "Tap to copy invite code",
-                        onClick: async (e) => {
-                            e.stopPropagation();
-                            if (await copyToClipboard(sp.join_code)) {
-                                Toast.success("Invite code copied!");
-                            } else {
-                                Toast.error("Could not copy code.");
-                            }
-                        },
-                    }, [
-                        h("span", { className: "material-symbols-rounded" }, "content_copy"),
-                        sp.join_code,
-                    ]) : null,
+                h("div", { className: "entity-copy" }, [
+                    h("strong", {}, sp.name),
+                    h("span", {}, `${sp.memberCount || 1} ${sp.memberCount === 1 ? "member" : "members"}${sp.is_owner ? " · Owner" : ""}${sp.join_code ? ` · Code: ${sp.join_code}` : ""}`),
                 ]),
+                h("button", {
+                    className: "entity-row-action",
+                    type: "button",
+                    title: "Options",
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        this._openSpaceMenu(sp);
+                    },
+                }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
             ]);
-            return card;
+            return row;
         }));
 
-        mount(container, header, topBanner, listWrap);
+        mount(container, header, banner, actionRow, list);
     },
 
     // ---------------- SPACE CONTENTS VIEW ----------------
@@ -199,7 +171,7 @@ const SpacesPage = {
             mount(container, header, EmptyState({
                 icon: "folder_shared",
                 title: "Couldn't load space",
-                subtitle: err.message || "This space might have been deleted or you are no longer a member.",
+                subtitle: err.message || "This space might have been deleted.",
                 actionLabel: "Back to Spaces",
                 onAction: () => Router.go("spaces"),
             }));
@@ -213,19 +185,15 @@ const SpacesPage = {
         this._cachedCurrentSpace = space;
 
         // Space info bar
-        const spaceBar = h("div", { className: "space-info-bar card" }, [
-            h("div", { className: "space-info-left" }, [
-                h("div", { className: "space-avatar-icon" }, [
-                    h("span", { className: "material-symbols-rounded" }, "folder_shared"),
-                ]),
-                h("div", { className: "space-info-text" }, [
-                    h("h2", {}, space.name),
-                    h("span", {}, `${space.memberCount || 1} members · ${folders.length} folders · ${files.length} PDFs`),
-                ]),
+        const summaryCard = h("div", { className: "space-summary-card" }, [
+            h("div", { className: "space-summary-text" }, [
+                h("strong", {}, space.name),
+                h("span", {}, `${space.memberCount || 1} members · ${folders.length} folders · ${files.length} PDFs`),
             ]),
             space.join_code ? h("button", {
                 className: "space-invite-chip",
                 type: "button",
+                title: "Tap to copy invite code",
                 onClick: async () => {
                     if (await copyToClipboard(space.join_code)) {
                         Toast.success("Invite code copied: " + space.join_code);
@@ -233,13 +201,11 @@ const SpacesPage = {
                 },
             }, [
                 h("span", { className: "material-symbols-rounded" }, "key"),
-                h("strong", {}, space.join_code),
-                h("span", { className: "material-symbols-rounded", style: "font-size:16px;" }, "content_copy"),
+                space.join_code,
             ]) : null,
         ]);
 
-        // Action buttons
-        const actionRow = h("div", { className: "space-actions-row" }, [
+        const actionRow = h("div", { className: "spaces-action-row" }, [
             h("button", {
                 className: "btn btn-primary btn-sm",
                 type: "button",
@@ -255,7 +221,7 @@ const SpacesPage = {
         const body = h("div", { className: "space-body" });
         this._renderContentsList(body, spaceId, null, folders, files);
 
-        mount(container, header, spaceBar, actionRow, body);
+        mount(container, header, summaryCard, actionRow, body);
     },
 
     // ---------------- SUBFOLDER VIEW ----------------
@@ -304,22 +270,18 @@ const SpacesPage = {
         this._currentParentFolderId = folder.parentFolderId || null;
         this._cachedCurrentFolder = folder;
 
-        // Breadcrumb bar
-        const breadcrumb = h("div", { className: "space-breadcrumb card" }, [
-            h("button", {
-                className: "breadcrumb-item",
-                type: "button",
+        // Breadcrumb
+        const crumb = h("div", { className: "crumb" }, [
+            h("span", { className: "material-symbols-rounded" }, "home"),
+            h("span", {
+                style: "cursor:pointer;",
                 onClick: () => Router.go(`spaces/${spaceId}`),
-            }, [
-                h("span", { className: "material-symbols-rounded" }, "home"),
-                "Root",
-            ]),
-            h("span", { className: "breadcrumb-sep" }, "/"),
-            h("span", { className: "breadcrumb-current" }, folder.name),
+            }, "Root"),
+            h("span", {}, ">"),
+            h("strong", {}, folder.name),
         ]);
 
-        // Action buttons
-        const actionRow = h("div", { className: "space-actions-row" }, [
+        const actionRow = h("div", { className: "spaces-action-row" }, [
             h("button", {
                 className: "btn btn-primary btn-sm",
                 type: "button",
@@ -335,7 +297,7 @@ const SpacesPage = {
         const body = h("div", { className: "space-body" });
         this._renderContentsList(body, spaceId, folderId, folders, files);
 
-        mount(container, header, breadcrumb, actionRow, body);
+        mount(container, header, crumb, actionRow, body);
     },
 
     _renderContentsList(container, spaceId, folderId, folders, files) {
@@ -354,22 +316,27 @@ const SpacesPage = {
 
         // Folders Section
         if (folders.length) {
-            const folderGrid = h("div", { className: "folder-grid" }, folders.map(f => {
+            sections.push(h("div", { className: "section-label" }, [
+                h("span", {}, "Folders"),
+                h("span", { className: "section-label-count" }, String(folders.length)),
+            ]));
+
+            const folderList = h("div", { className: "entity-list" }, folders.map(f => {
                 return h("div", {
-                    className: "folder-card card",
+                    className: "entity-row",
                     role: "button",
                     tabindex: "0",
                     onClick: () => Router.go(`spaces/${spaceId}/folder/${f.id}`),
                 }, [
-                    h("div", { className: "folder-card-icon" }, [
+                    h("div", { className: "entity-badge badge-folder" }, [
                         h("span", { className: "material-symbols-rounded" }, "folder"),
                     ]),
-                    h("div", { className: "folder-card-info" }, [
-                        h("strong", { className: "folder-card-name" }, f.name),
-                        h("span", { className: "folder-card-sub" }, "Folder"),
+                    h("div", { className: "entity-copy" }, [
+                        h("strong", {}, f.name),
+                        h("span", {}, "Folder"),
                     ]),
                     h("button", {
-                        className: "folder-card-menu-btn",
+                        className: "entity-row-action",
                         type: "button",
                         title: "Folder options",
                         onClick: (e) => {
@@ -379,32 +346,32 @@ const SpacesPage = {
                     }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
                 ]);
             }));
-
-            sections.push(h("div", { className: "section-label" }, [
-                h("span", {}, "Folders"),
-                h("span", { className: "section-label-count" }, String(folders.length)),
-            ]));
-            sections.push(folderGrid);
+            sections.push(folderList);
         }
 
         // Files Section (PDFs only)
         if (files.length) {
-            const fileList = h("div", { className: "file-list" }, files.map(file => {
+            sections.push(h("div", { className: "section-label" }, [
+                h("span", {}, "PDF Documents"),
+                h("span", { className: "section-label-count" }, String(files.length)),
+            ]));
+
+            const fileList = h("div", { className: "entity-list" }, files.map(file => {
                 return h("div", {
-                    className: "file-card card",
+                    className: "entity-row",
                     role: "button",
                     tabindex: "0",
                     onClick: () => this._openPdfFile(spaceId, file),
                 }, [
-                    h("div", { className: "file-card-icon" }, [
+                    h("div", { className: "entity-badge badge-pdf" }, [
                         h("span", { className: "material-symbols-rounded" }, "picture_as_pdf"),
                     ]),
-                    h("div", { className: "file-card-info" }, [
-                        h("strong", { className: "file-card-name" }, file.name || file.original_name || "Document.pdf"),
-                        h("span", { className: "file-card-sub" }, this._formatBytes(file.size || 0)),
+                    h("div", { className: "entity-copy" }, [
+                        h("strong", {}, file.name || file.original_name || "Document.pdf"),
+                        h("span", {}, this._formatBytes(file.size || 0)),
                     ]),
                     h("button", {
-                        className: "file-card-menu-btn",
+                        className: "entity-row-action",
                         type: "button",
                         title: "File options",
                         onClick: (e) => {
@@ -414,11 +381,6 @@ const SpacesPage = {
                     }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
                 ]);
             }));
-
-            sections.push(h("div", { className: "section-label" }, [
-                h("span", {}, "PDF Documents"),
-                h("span", { className: "section-label-count" }, String(files.length)),
-            ]));
             sections.push(fileList);
         }
 
@@ -429,7 +391,6 @@ const SpacesPage = {
     async _openPdfFile(spaceId, file) {
         Toast.show("Opening PDF…");
         try {
-            // First try using storage_id if available (uses IndexedDB disk cache)
             let blob = null;
             if (file.storage_id) {
                 try {
@@ -439,7 +400,6 @@ const SpacesPage = {
                 }
             }
             if (!blob) {
-                // Fetch details to get latest url / download_url
                 const details = await SpacesApi.getFile(spaceId, file.id);
                 if (details.storage_id) {
                     blob = await StorageService.getBlob(details.storage_id);
@@ -455,7 +415,6 @@ const SpacesPage = {
                 throw new Error("Could not retrieve document bytes.");
             }
 
-            // Open in full-screen PDF viewer
             await PdfViewer.open(blob, {
                 name: file.name || file.original_name || "Document",
                 storageId: file.storage_id,
@@ -478,17 +437,14 @@ const SpacesPage = {
             document.body.removeChild(fileInput);
             if (!file) return;
 
-            // Strict PDF check
             const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
             if (!isPdf) {
                 Toast.error("Only PDF files are supported in Student Space.");
                 return;
             }
 
-            // Prompt optional title
             const defaultName = file.name.replace(/\.pdf$/i, "");
             const nameInput = h("input", {
-                className: "input-field",
                 value: defaultName,
                 placeholder: "Document Title",
             });
@@ -517,12 +473,11 @@ const SpacesPage = {
                 }
             });
 
-            Sheet.open(h("div", { className: "upload-sheet" }, [
+            Sheet.open(h("div", {}, [
                 h("div", { className: "sheet-handle" }),
-                h("div", { className: "sheet-kicker" }, "UPLOAD PDF"),
-                h("h3", {}, "Add PDF to Space"),
+                h("h3", { style: "margin-bottom:6px;" }, "Upload PDF"),
                 h("p", { className: "profile-meta", style: "margin-bottom:14px;" },
-                    `Selected: ${file.name} (${this._formatBytes(file.size)})`),
+                    `${file.name} (${this._formatBytes(file.size)})`),
                 h("div", { className: "field", style: "margin-bottom:16px;" }, [
                     h("label", {}, "Display Name"),
                     nameInput,
@@ -537,8 +492,7 @@ const SpacesPage = {
     // ---------------- CREATE FOLDER ----------------
     _openCreateFolderSheet(spaceId, parentFolderId = null) {
         const input = h("input", {
-            className: "input-field",
-            placeholder: "e.g. Exam Prep, Chapter Notes, Chemistry",
+            placeholder: "e.g. Exam Prep, Biology Notes",
             autofocus: true,
         });
         const btn = h("button", {
@@ -572,9 +526,8 @@ const SpacesPage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("div", { className: "sheet-kicker" }, "NEW FOLDER"),
-            h("h3", {}, parentFolderId ? "Create Subfolder" : "Create Folder"),
-            h("div", { className: "field", style: "margin:14px 0 16px;" }, [
+            h("h3", { style: "margin-bottom:12px;" }, parentFolderId ? "Create Subfolder" : "Create Folder"),
+            h("div", { className: "field", style: "margin-bottom:16px;" }, [
                 h("label", {}, "Folder Name"),
                 input,
             ]),
@@ -586,8 +539,7 @@ const SpacesPage = {
     // ---------------- CREATE SPACE ----------------
     _openCreateSpaceSheet() {
         const input = h("input", {
-            className: "input-field",
-            placeholder: "e.g. Grade 10 Study Circle, Math Club",
+            placeholder: "e.g. Study Group, Math Club",
             autofocus: true,
         });
         const btn = h("button", {
@@ -621,10 +573,9 @@ const SpacesPage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("div", { className: "sheet-kicker" }, "STUDENT SPACE"),
-            h("h3", {}, "Create a New Space"),
+            h("h3", { style: "margin-bottom:6px;" }, "Create Space"),
             h("p", { className: "profile-meta", style: "margin-bottom:14px;" },
-                "A shared workspace for you and your classmates to organize notes and share PDFs with a unique join code."),
+                "A shared workspace for you and your peers with a unique invite code."),
             h("div", { className: "field", style: "margin-bottom:16px;" }, [
                 h("label", {}, "Space Name"),
                 input,
@@ -637,8 +588,7 @@ const SpacesPage = {
     // ---------------- JOIN SPACE ----------------
     _openJoinSpaceSheet() {
         const input = h("input", {
-            className: "input-field",
-            placeholder: "Enter 6-8 digit invite code",
+            placeholder: "Enter invite code",
             autofocus: true,
             style: "text-transform:uppercase;letter-spacing:2px;font-weight:700;",
         });
@@ -673,10 +623,9 @@ const SpacesPage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("div", { className: "sheet-kicker" }, "INVITE CODE"),
-            h("h3", {}, "Join a Student Space"),
+            h("h3", { style: "margin-bottom:6px;" }, "Join a Space"),
             h("p", { className: "profile-meta", style: "margin-bottom:14px;" },
-                "Enter the invite code shared by your peer or study group creator."),
+                "Enter the invite code shared by your peer or study group."),
             h("div", { className: "field", style: "margin-bottom:16px;" }, [
                 h("label", {}, "Invite Code"),
                 input,
@@ -725,8 +674,8 @@ const SpacesPage = {
                     Sheet.close();
                     confirmAction({
                         title: "Delete Space?",
-                        message: `Permanently delete "${sp.name}" and all its folders and files? This cannot be undone.`,
-                        confirmLabel: "Delete Space",
+                        message: `Permanently delete "${sp.name}" and all contents? This cannot be undone.`,
+                        confirmLabel: "Delete",
                         danger: true,
                         onConfirm: async () => {
                             try {
@@ -738,7 +687,7 @@ const SpacesPage = {
                     });
                 },
             }, [
-                h("span", { className: "material-symbols-rounded" }, "delete_forever"),
+                h("span", { className: "material-symbols-rounded" }, "delete"),
                 h("div", {}, [h("strong", {}, "Delete Space")]),
             ]));
         } else {
@@ -750,7 +699,7 @@ const SpacesPage = {
                     confirmAction({
                         title: "Leave Space?",
                         message: `Leave "${sp.name}"? You will need an invite code to rejoin.`,
-                        confirmLabel: "Leave Space",
+                        confirmLabel: "Leave",
                         danger: true,
                         onConfirm: async () => {
                             try {
@@ -781,7 +730,6 @@ const SpacesPage = {
 
     _openRenameSpaceSheet(spaceId, currentName) {
         const input = h("input", {
-            className: "input-field",
             value: currentName,
             autofocus: true,
         });
@@ -812,8 +760,8 @@ const SpacesPage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("h3", {}, "Rename Space"),
-            h("div", { className: "field", style: "margin:14px 0 16px;" }, [
+            h("h3", { style: "margin-bottom:12px;" }, "Rename Space"),
+            h("div", { className: "field", style: "margin-bottom:16px;" }, [
                 h("label", {}, "Space Name"),
                 input,
             ]),
@@ -844,7 +792,7 @@ const SpacesPage = {
                     confirmAction({
                         title: "Delete Folder?",
                         message: `Delete folder "${folder.name}" and all subfolders and files inside it?`,
-                        confirmLabel: "Delete Folder",
+                        confirmLabel: "Delete",
                         danger: true,
                         onConfirm: async () => {
                             try {
@@ -879,7 +827,6 @@ const SpacesPage = {
 
     _openRenameFolderSheet(spaceId, folderId, currentName) {
         const input = h("input", {
-            className: "input-field",
             value: currentName,
             autofocus: true,
         });
@@ -910,8 +857,8 @@ const SpacesPage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("h3", {}, "Rename Folder"),
-            h("div", { className: "field", style: "margin:14px 0 16px;" }, [
+            h("h3", { style: "margin-bottom:12px;" }, "Rename Folder"),
+            h("div", { className: "field", style: "margin-bottom:16px;" }, [
                 h("label", {}, "Folder Name"),
                 input,
             ]),
@@ -964,7 +911,7 @@ const SpacesPage = {
                     confirmAction({
                         title: "Delete File?",
                         message: `Permanently delete "${file.name}"?`,
-                        confirmLabel: "Delete File",
+                        confirmLabel: "Delete",
                         danger: true,
                         onConfirm: async () => {
                             try {
@@ -994,7 +941,6 @@ const SpacesPage = {
 
     _openRenameFileSheet(spaceId, file) {
         const input = h("input", {
-            className: "input-field",
             value: file.name || file.original_name || "",
             autofocus: true,
         });
@@ -1029,8 +975,8 @@ const SpacesPage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("h3", {}, "Rename File"),
-            h("div", { className: "field", style: "margin:14px 0 16px;" }, [
+            h("h3", { style: "margin-bottom:12px;" }, "Rename File"),
+            h("div", { className: "field", style: "margin-bottom:16px;" }, [
                 h("label", {}, "File Name"),
                 input,
             ]),
@@ -1042,7 +988,7 @@ const SpacesPage = {
     async _openMoveFileSheet(spaceId, file) {
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("h3", {}, "Move File"),
+            h("h3", { style: "margin-bottom:6px;" }, "Move File"),
             h("p", { className: "profile-meta", style: "margin-bottom:12px;" }, "Select destination folder:"),
             h("div", { className: "skeleton-row" }, [h("div", { className: "skeleton skeleton-line" })]),
         ]));
@@ -1092,7 +1038,7 @@ const SpacesPage = {
 
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
-            h("h3", {}, "Move File"),
+            h("h3", { style: "margin-bottom:6px;" }, "Move File"),
             h("p", { className: "profile-meta", style: "margin-bottom:12px;" },
                 `Moving "${file.name || file.original_name}"`),
             ...options,
