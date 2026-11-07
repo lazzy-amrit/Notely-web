@@ -77,33 +77,62 @@ body::-webkit-scrollbar { display: none; }
     align-items: center;
     justify-content: center;
     gap: 8px;
-    height: 52px;
+    height: 50px;
     padding: 0 22px;
     border: none;
     border-radius: var(--radius-md);
-    font-size: .98rem;
+    font-size: .95rem;
     font-weight: 700;
+    letter-spacing: -0.01em;
     font-family: inherit;
     cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    transition: transform .15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .15s ease, opacity .15s ease, filter .15s ease;
 }
-.btn:active { transform: scale(.97); }
-.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn:hover { filter: brightness(1.03); }
+.btn:active { transform: scale(.97); filter: brightness(0.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; filter: none; }
 
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-btn-from), var(--primary-btn-to));
     color: var(--on-primary);
+    box-shadow: var(--shadow-primary);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.btn-ghost {
+    background: var(--surface-alt);
+    color: var(--text);
+    box-shadow: none;
+    border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--surface); border-color: rgba(123, 97, 255, 0.25); }
+.btn-soft {
+    background: var(--primary-soft);
+    color: var(--primary);
+    border: 1px solid var(--primary-soft-strong);
     box-shadow: none;
 }
-.btn-ghost { background: var(--surface-alt); color: var(--text); box-shadow: none; }
-.btn-danger { background: var(--danger); color: var(--on-primary); }
-.btn-outline-danger { background: transparent; color: var(--danger); border: 2px solid var(--danger); }
-.btn-sm { height: 42px; padding: 0 16px; font-size: .88rem; border-radius: var(--radius-sm); }
-.btn-icon {
-    width: 44px; height: 44px; padding: 0; border-radius: 50%;
-    background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text);
-    cursor: pointer;
+.btn-soft:hover { background: var(--primary-soft-strong); }
+.btn-danger {
+    background: var(--danger);
+    color: var(--on-primary);
+    box-shadow: 0 4px 14px -2px rgba(255, 59, 48, 0.35);
 }
+.btn-outline-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1.5px solid var(--danger);
+}
+.btn-outline-danger:hover { background: var(--danger-bg); }
+.btn-sm { height: 40px; padding: 0 16px; font-size: .86rem; border-radius: var(--radius-sm); }
+.btn-icon {
+    width: 42px; height: 42px; padding: 0; border-radius: 50%;
+    background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+}
+.btn-icon:hover { transform: scale(1.05); border-color: rgba(123, 97, 255, 0.3); }
+.btn-icon:active { transform: scale(.94); }
 .btn-block { width: 100%; }
 
 /* ---------------- CARDS ---------------- */
@@ -112,20 +141,25 @@ body::-webkit-scrollbar { display: none; }
     background: var(--surface);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
     padding: 16px;
+    transition: box-shadow .2s ease, border-color .2s ease;
 }
 .card-row {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 4px;
+    padding: 12px 8px;
     cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background .15s ease, transform .15s ease;
 }
-.card-row:active { background: var(--surface-alt); border-radius: var(--radius-md); }
+.card-row:hover { background: var(--surface-alt); }
+.card-row:active { background: var(--surface-alt); transform: scale(.985); }
 .card-row-text { flex: 1; min-width: 0; }
-.card-row-title { font-weight: 700; font-size: .98rem; }
+.card-row-title { font-weight: 700; font-size: .96rem; letter-spacing: -0.01em; }
 .card-row-sub {
-    color: var(--muted); font-size: .85rem; margin-top: 2px;
+    color: var(--muted); font-size: .84rem; margin-top: 2px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .card-row-meta { color: var(--muted); font-size: .78rem; text-align: right; flex-shrink: 0; }

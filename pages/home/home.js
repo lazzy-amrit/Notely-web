@@ -18,7 +18,8 @@ const HomePage = {
         const quickActions = h("div", { className: "quick-actions-wrap" }, [
             h("div", { className: "quick-actions" }, [
                 this._quickAction("star", "Starred", () => Router.go("notes")),
-                this._quickAction("school", "Join school", () => Router.go("schools")),
+                this._quickAction("folder_shared", "Spaces", () => Router.go("spaces")),
+                this._quickAction("school", "Schools", () => Router.go("schools")),
                 this._quickAction("menu_book", "Notes", () => Router.go("notes")),
                 this._quickAction("person", "Profile", () => Router.go("profile")),
             ]),

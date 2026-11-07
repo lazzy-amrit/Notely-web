@@ -7,7 +7,7 @@
 // refreshes it. This makes navigation fast without turning the cache into
 // the source of truth.
 
-const APP_CACHE_VERSION = "notely_data_cache_v4";
+const APP_CACHE_VERSION = "notely_data_cache_v5";
 const CACHE_EVENT = "notely:cache-updated";
 const CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 

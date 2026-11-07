@@ -200,7 +200,7 @@ const POLICY_CONTENT = {
             },
             {
                 heading: "Version",
-                body: "Notely 1.2.0",
+                body: "Notely 1.2",
             },
             {
                 heading: "Policies",

@@ -64,6 +64,25 @@ const ClassesApi = {
     me(schoolId, name, section) {
         return Api.get(`/school/${schoolId}/class/${encodeURIComponent(name)}/${encodeURIComponent(section)}/me`);
     },
+
+    // POST /school/{schoolId}/classes/session-shift
+    // body: { currentClassId, targetClassId }
+    // Shifts/promotes all students from current class to target class.
+    shiftSession(schoolId, currentClassId, targetClassId) {
+        return Api.post(`/school/${schoolId}/classes/session-shift`, {
+            currentClassId,
+            targetClassId,
+        });
+    },
+
+    // POST /school/{schoolId}/classes/session-shift/global
+    // body: optional { shifts: [{ currentClassId, targetClassId }] }
+    // When shifts is null/omitted, backend automatically sorts classes in each
+    // section by academic order, graduates top-class students, and moves lower
+    // classes up to the next grade.
+    shiftGlobalSession(schoolId, shifts = null) {
+        return Api.post(`/school/${schoolId}/classes/session-shift/global`, shifts ? { shifts } : {});
+    },
 };
 
 window.ClassesApi = ClassesApi;

@@ -632,6 +632,11 @@ const SchoolsPage = {
                 className: "btn btn-soft btn-block", type: "button",
                 onClick: () => this._openEditSchoolSheet(schoolId, info),
             }, [h("span", { className: "material-symbols-rounded" }, "edit"), " Edit school details"]));
+
+            actions.push(h("button", {
+                className: "btn btn-soft btn-block", type: "button",
+                onClick: () => { Sheet.close(); this._openGlobalSessionShiftSheet(schoolId, info); },
+            }, [h("span", { className: "material-symbols-rounded" }, "published_with_changes"), " Rollover academic session"]));
         }
         if (canManage) {
             actions.push(h("button", {
@@ -914,6 +919,16 @@ const SchoolsPage = {
                 h("span", { className: "material-symbols-rounded school-info-chevron" }, "chevron_right"),
             ]);
 
+        const canManage = this._canManage(schoolInfo?.role);
+        const actions = [];
+        if (canManage && schoolId) {
+            actions.push(h("button", {
+                className: "btn btn-soft btn-block", type: "button",
+                style: "margin-top:14px;",
+                onClick: () => { Sheet.close(); this._openClassSessionShiftSheet(schoolId, className, sections, schoolInfo); },
+            }, [h("span", { className: "material-symbols-rounded" }, "published_with_changes"), " Shift class to new session"]));
+        }
+
         Sheet.open(h("div", { className: "school-info-sheet" }, [
             h("div", { className: "sheet-handle" }),
             h("div", { className: "school-info-hero" }, [
@@ -928,6 +943,7 @@ const SchoolsPage = {
                 ].filter(Boolean)),
             ]),
             h("div", { className: "school-info-list" }, [membersEntry]),
+            actions.length ? h("div", { className: "school-info-actions", style: "margin-top:12px;" }, actions) : null,
         ]));
     },
 
@@ -1338,6 +1354,320 @@ const SchoolsPage = {
             h("p", { className: "profile-meta" }, `Currently ${member.role} in ${className} ${section}. Class roles don't affect their school role.`),
             ...options,
         ]));
+    },
+
+    _classOrderKey(name) {
+        const clean = String(name || "").trim().toLowerCase();
+        const preSchool = {
+            "nursery": 1, "lkg": 2, "kg1": 2, "ukg": 3, "kg2": 3, "prep": 4, "kg": 4,
+        };
+        for (const [k, v] of Object.entries(preSchool)) {
+            if (clean.includes(k)) return v;
+        }
+        const match = clean.match(/\d+/);
+        if (match) return 10 + parseInt(match[0], 10);
+        return 100;
+    },
+
+    async _openClassSessionShiftSheet(schoolId, className, sections = [], schoolInfo) {
+        let allClasses = [];
+        try {
+            allClasses = await ClassesApi.list(schoolId);
+        } catch (err) {
+            Toast.fromApiError(err);
+            return;
+        }
+
+        // Flatten all available target class sections
+        const allTargets = [];
+        allClasses.forEach(cls => {
+            (cls.sections || []).forEach(sec => {
+                allTargets.push({
+                    id: sec.id,
+                    className: cls.name,
+                    section: sec.section,
+                    label: `${cls.name} (${sec.section})`,
+                    memberCount: sec.member_count || 0,
+                    orderKey: this._classOrderKey(cls.name),
+                });
+            });
+        });
+
+        if (!allTargets.length) {
+            Toast.error("No classes found to shift to.");
+            return;
+        }
+
+        let selectedSection = sections[0] || null;
+        let selectedTargetId = null;
+
+        const updateSuggestion = () => {
+            if (!selectedSection) return null;
+            const currentOrder = this._classOrderKey(className);
+            // Suggest higher class in same section first
+            const sameSectionCandidates = allTargets.filter(t =>
+                t.section === selectedSection.section &&
+                t.id !== selectedSection.id &&
+                t.orderKey > currentOrder
+            ).sort((a, b) => a.orderKey - b.orderKey);
+
+            if (sameSectionCandidates.length) {
+                return sameSectionCandidates[0];
+            }
+            // Fallback: any class with higher order
+            const higherCandidates = allTargets.filter(t =>
+                t.id !== selectedSection.id &&
+                t.orderKey > currentOrder
+            ).sort((a, b) => a.orderKey - b.orderKey);
+
+            if (higherCandidates.length) {
+                return higherCandidates[0];
+            }
+            // Otherwise first different target
+            return allTargets.find(t => t.id !== selectedSection.id) || allTargets[0];
+        };
+
+        let suggestedTarget = updateSuggestion();
+        selectedTargetId = suggestedTarget ? suggestedTarget.id : (allTargets[0]?.id || null);
+
+        const buildUI = () => {
+            const form = h("div", { className: "session-shift-sheet" });
+            const handle = h("div", { className: "sheet-handle" });
+            const kicker = h("div", { className: "sheet-kicker" }, "SESSION SHIFT");
+            const title = h("h3", {}, `Shift ${className} to New Class`);
+            const desc = h("p", { className: "profile-meta", style: "margin-bottom:16px;" },
+                "Promote students in this class to their next academic grade. All regular students will be moved into the destination class.");
+
+            // Section chooser if this class has multiple sections
+            let sectionPicker = null;
+            if (sections.length > 1) {
+                const chips = sections.map(sec => h("button", {
+                    type: "button",
+                    className: `chip ${selectedSection?.id === sec.id ? "active" : ""}`,
+                    onClick: () => {
+                        selectedSection = sec;
+                        suggestedTarget = updateSuggestion();
+                        selectedTargetId = suggestedTarget ? suggestedTarget.id : null;
+                        renderSheetContent();
+                    },
+                }, `${sec.section} (${sec.member_count || 0} students)`));
+                sectionPicker = h("div", { className: "field", style: "margin-bottom:14px;" }, [
+                    h("label", {}, "Choose Current Section"),
+                    h("div", { className: "chips-row", style: "display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;" }, chips),
+                ]);
+            }
+
+            // Current Class Info Box
+            const fromBox = h("div", {
+                className: "card",
+                style: "padding:12px 14px;margin-bottom:14px;background:var(--surface-alt);border:1px solid var(--border);"
+            }, [
+                h("div", { style: "display:flex;align-items:center;gap:10px;" }, [
+                    h("span", { className: "material-symbols-rounded", style: "color:var(--primary);font-size:24px;" }, "group"),
+                    h("div", { style: "flex:1;" }, [
+                        h("strong", { style: "display:block;font-size:.95rem;" }, `${className} ${selectedSection ? selectedSection.section : ""}`),
+                        h("span", { style: "font-size:.82rem;color:var(--muted);" }, `${selectedSection?.member_count || 0} students will be moved`),
+                    ]),
+                ]),
+            ]);
+
+            // Target Class Select
+            const select = h("select", {
+                className: "input-field",
+                style: "width:100%;padding:10px 12px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);font-family:inherit;font-size:.95rem;color:var(--text);margin-top:6px;",
+            });
+            allTargets.forEach(t => {
+                if (selectedSection && t.id === selectedSection.id) return;
+                const isSuggested = suggestedTarget && t.id === suggestedTarget.id;
+                const opt = document.createElement("option");
+                opt.value = String(t.id);
+                opt.textContent = isSuggested ? `⭐ ${t.label} (Suggested next class)` : `${t.label} (${t.memberCount} students)`;
+                if (String(t.id) === String(selectedTargetId)) opt.selected = true;
+                select.appendChild(opt);
+            });
+            select.addEventListener("change", () => {
+                selectedTargetId = parseInt(select.value, 10);
+            });
+
+            const toBox = h("div", { className: "field", style: "margin-bottom:16px;" }, [
+                h("label", { style: "display:block;margin-bottom:4px;font-weight:700;font-size:.84rem;" }, "Promote To Class"),
+                select,
+                suggestedTarget ? h("div", {
+                    style: "margin-top:8px;font-size:.78rem;color:var(--primary);display:flex;align-items:center;gap:4px;"
+                }, [
+                    h("span", { className: "material-symbols-rounded", style: "font-size:16px;" }, "auto_awesome"),
+                    h("span", {}, `Suggested from order: ${suggestedTarget.label}`),
+                ]) : null,
+            ]);
+
+            const submitBtn = h("button", {
+                type: "button",
+                className: "btn btn-primary btn-block",
+            }, [
+                h("span", { className: "material-symbols-rounded" }, "published_with_changes"),
+                " Shift Students to Selected Class",
+            ]);
+
+            submitBtn.addEventListener("click", async () => {
+                if (!selectedSection || !selectedTargetId) {
+                    Toast.error("Please pick both source and destination classes.");
+                    return;
+                }
+                const targetObj = allTargets.find(t => t.id === selectedTargetId);
+                const targetName = targetObj ? targetObj.label : "target class";
+
+                confirmAction({
+                    title: "Shift students?",
+                    message: `Move all ${selectedSection.member_count || 0} students from ${className} ${selectedSection.section} to ${targetName}?`,
+                    confirmLabel: "Shift Students",
+                    onConfirm: async () => {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = "Shifting...";
+                        try {
+                            const res = await ClassesApi.shiftSession(schoolId, selectedSection.id, selectedTargetId);
+                            Toast.success(res?.message || `Successfully shifted students to ${targetName}!`);
+                            Sheet.close();
+                            // Refresh section screen
+                            SchoolsPage._renderSections(qs("#app-content"), schoolId, className);
+                        } catch (err) {
+                            Toast.fromApiError(err);
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = "Shift Students to Selected Class";
+                        }
+                    },
+                });
+            });
+
+            mount(form, handle, kicker, title, desc, sectionPicker, fromBox, toBox, submitBtn);
+            return form;
+        };
+
+        const renderSheetContent = () => {
+            Sheet.open(buildUI());
+        };
+
+        renderSheetContent();
+    },
+
+    async _openGlobalSessionShiftSheet(schoolId, schoolInfo) {
+        let allClasses = [];
+        try {
+            allClasses = await ClassesApi.list(schoolId);
+        } catch (err) {
+            Toast.fromApiError(err);
+            return;
+        }
+
+        // Group by section
+        const bySection = {};
+        allClasses.forEach(cls => {
+            (cls.sections || []).forEach(sec => {
+                const sName = sec.section || "General";
+                if (!bySection[sName]) bySection[sName] = [];
+                bySection[sName].push({
+                    id: sec.id,
+                    name: cls.name,
+                    section: sec.section,
+                    memberCount: sec.member_count || 0,
+                    orderKey: this._classOrderKey(cls.name),
+                });
+            });
+        });
+
+        // Compute previews
+        const sectionPreviews = [];
+        Object.keys(bySection).forEach(sName => {
+            const list = bySection[sName];
+            list.sort((a, b) => a.orderKey - b.orderKey);
+            if (list.length >= 2) {
+                const top = list[list.length - 1];
+                const shifts = [];
+                for (let i = list.length - 2; i >= 0; i--) {
+                    shifts.push({ from: list[i], to: list[i + 1] });
+                }
+                sectionPreviews.push({
+                    section: sName,
+                    graduating: top,
+                    shifts,
+                });
+            }
+        });
+
+        const form = h("div", { className: "session-shift-sheet" });
+        const handle = h("div", { className: "sheet-handle" });
+        const kicker = h("div", { className: "sheet-kicker" }, "ACADEMIC ROLLOVER");
+        const title = h("h3", {}, `Rollover Session for ${schoolInfo?.name || "School"}`);
+        const desc = h("p", { className: "profile-meta", style: "margin-bottom:14px;" },
+            "Roll over all classes for the new academic year. In each section, students advance to the next grade automatically, and the top graduating class completes their session.");
+
+        const previewContainer = h("div", {
+            style: "max-height:260px;overflow-y:auto;margin-bottom:16px;display:flex;flex-direction:column;gap:10px;"
+        });
+
+        if (!sectionPreviews.length) {
+            previewContainer.appendChild(h("div", {
+                className: "card",
+                style: "padding:14px;background:var(--surface-alt);border:1px solid var(--border);color:var(--muted);font-size:.88rem;"
+            }, "You need at least two classes in a section to run an automated rollover. For single classes, use the class-level shift button instead."));
+        } else {
+            sectionPreviews.forEach(sp => {
+                const secCard = h("div", {
+                    className: "card",
+                    style: "padding:12px;background:var(--surface-alt);border:1px solid var(--border);"
+                }, [
+                    h("strong", { style: "display:block;margin-bottom:8px;font-size:.9rem;color:var(--primary);" }, `Section ${sp.section}`),
+                    ...sp.shifts.map(s => h("div", {
+                        style: "display:flex;align-items:center;justify-content:space-between;font-size:.82rem;padding:4px 0;border-bottom:1px dashed var(--border);"
+                    }, [
+                        h("span", {}, `${s.from.name} (${s.from.memberCount} students)`),
+                        h("span", { className: "material-symbols-rounded", style: "font-size:16px;color:var(--muted);" }, "arrow_forward"),
+                        h("strong", {}, s.to.name),
+                    ])),
+                    h("div", {
+                        style: "display:flex;align-items:center;justify-content:space-between;font-size:.82rem;padding:6px 0 2px;color:var(--danger);"
+                    }, [
+                        h("span", {}, `${sp.graduating.name} (${sp.graduating.memberCount} students)`),
+                        h("span", { style: "font-weight:700;" }, "🎓 Graduates (Leaves)"),
+                    ]),
+                ]);
+                previewContainer.appendChild(secCard);
+            });
+        }
+
+        const confirmBtn = h("button", {
+            type: "button",
+            className: "btn btn-primary btn-block",
+            disabled: sectionPreviews.length === 0,
+        }, [
+            h("span", { className: "material-symbols-rounded" }, "published_with_changes"),
+            " Confirm School Academic Rollover",
+        ]);
+
+        confirmBtn.addEventListener("click", () => {
+            confirmAction({
+                title: "Confirm School Rollover?",
+                message: "This will advance all classes across all sections and graduate the highest grade. This cannot be undone.",
+                confirmLabel: "Run Rollover",
+                danger: true,
+                onConfirm: async () => {
+                    confirmBtn.disabled = true;
+                    confirmBtn.textContent = "Rolling over...";
+                    try {
+                        const res = await ClassesApi.shiftGlobalSession(schoolId);
+                        Toast.success(res?.message || `Academic rollover complete! ${res?.total_moved || 0} students shifted, ${res?.graduated_count || 0} graduated.`);
+                        Sheet.close();
+                        SchoolsPage._renderSchool(qs("#app-content"), schoolId);
+                    } catch (err) {
+                        Toast.fromApiError(err);
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = "Confirm School Academic Rollover";
+                    }
+                },
+            });
+        });
+
+        mount(form, handle, kicker, title, desc, previewContainer, confirmBtn);
+        Sheet.open(form);
     },
 };
 

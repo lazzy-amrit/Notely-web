@@ -31,6 +31,7 @@ if ("serviceWorker" in navigator) {
     // first, then the cache and secondary API warm-up continue in the
     // background.
     Router.register("home", (c) => HomePage.render(c));
+    Router.register("spaces", (c, p) => SpacesPage.render(c, p));
     // Chat was removed in v1.2; old installed PWAs may still hold links
     // like #/messages/... — swap them for #/home (replace, so back doesn't
     // bounce through dead links).

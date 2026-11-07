@@ -4,6 +4,7 @@
 
 const NAV_ITEMS = [
     { route: "home", icon: "home", label: "Home" },
+    { route: "spaces", icon: "folder_shared", label: "Spaces" },
     { route: "notes", icon: "menu_book", label: "Notes" },
     { route: "schools", icon: "school", label: "Schools" },
     { route: "profile", icon: "person", label: "Profile" },
