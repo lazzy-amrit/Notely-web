@@ -34,7 +34,7 @@ const SpacesApi = {
     },
 
     members(spaceId) {
-        return Api.get(`/student/space/${encodeURIComponent(spaceId)}/members`);
+        return this._withRetry(() => Api.get(`/student/space/${encodeURIComponent(spaceId)}/members`));
     },
 
     // PATCH /student/space/{spaceId}/rename { name }

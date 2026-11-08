@@ -219,7 +219,17 @@ const SpacesPage = {
 
     async _openMembersSheet(spaceId, space) {
         const list = h("div", { className: "space-member-list" }, [h("p", { className: "field-hint" }, "Loading members…")]);
-        Sheet.open(h("div", {}, [h("div", { className: "sheet-handle" }), h("h3", {}, `${space.name} members`), list]));
+        const details = h("div", { className: "space-details-card" }, [
+            h("div", { className: "space-details-kicker" }, "STUDENT SPACE"),
+            h("h3", {}, space.name),
+            h("p", { className: "space-details-subtitle" }, "Everyone with access to this workspace"),
+            space.join_code ? h("div", { className: "space-details-code" }, [
+                h("span", {}, "Invite code"), h("strong", {}, space.join_code),
+            ]) : null,
+            h("div", { className: "space-details-section-title" }, "Members"),
+            list,
+        ]);
+        Sheet.open(details, { kind: "modal" });
         try {
             const data = await SpacesApi.members(spaceId);
             const members = data.members || [];

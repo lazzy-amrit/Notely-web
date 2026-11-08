@@ -7,7 +7,7 @@
 // refreshes it. This makes navigation fast without turning the cache into
 // the source of truth.
 
-const APP_CACHE_VERSION = "notely_data_cache_v5";
+const APP_CACHE_VERSION = "notely_data_cache_v6";
 const CACHE_EVENT = "notely:cache-updated";
 const CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 
@@ -58,6 +58,10 @@ const CacheService = {
         if (p === "/auth/me") return { maxAge: 15 * 60 * 1000 };
         if (p === "/school/dashboard") return { maxAge: 5 * 60 * 1000 };
         if (p === "/stars") return { maxAge: 5 * 60 * 1000 };
+        if (p === "/student/space/me") return { maxAge: 60 * 1000, revalidate: true };
+        if (/^\/student\/space\/\d+$/.test(p)) return { maxAge: 2 * 60 * 1000, revalidate: true };
+        if (/^\/student\/space\/\d+\/members$/.test(p)) return { maxAge: 60 * 1000, revalidate: true };
+        if (/^\/student\/space\/\d+\/folder\/\d+$/.test(p)) return { maxAge: 2 * 60 * 1000, revalidate: true };
         if (/^\/school\/\d+\/info$/.test(p)) return { maxAge: 10 * 60 * 1000 };
         if (/^\/school\/\d+\/members$/.test(p)) return { maxAge: 3 * 60 * 1000 };
         if (/^\/users\/\d+$/.test(p)) return { maxAge: 5 * 60 * 1000 };
@@ -75,7 +79,7 @@ const CacheService = {
         const cached = this._read(path);
         if (cached) {
             const age = Date.now() - cached.savedAt;
-            if (age > policy.maxAge) this._backgroundRefresh(path, fetcher, policy);
+            if (policy.revalidate || age > policy.maxAge) this._backgroundRefresh(path, fetcher, policy);
             return cached.data;
         }
         return this._backgroundRefresh(path, fetcher, policy, true);
@@ -122,6 +126,7 @@ const CacheService = {
         }
         if (p.startsWith("/notes/")) this.invalidate("/notes/");
         if (p.startsWith("/stars")) this.invalidate("/stars");
+        if (p.startsWith("/student/space/")) this.invalidate("/student/space/");
     },
 
     async prefetch(paths) {

@@ -67,6 +67,7 @@ if ("serviceWorker" in navigator) {
         "/auth/me",
         "/school/dashboard",
         "/stars",
+        "/student/space/me",
     ]).catch(() => {});
 })();
 
