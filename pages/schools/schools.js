@@ -1140,7 +1140,22 @@ const SchoolsPage = {
                 return h("div", {
                     className: "card-row", onClick: () => openProfilePreview({
                         id: m.id, username: m.username, name: m.full_name, role: m.role, profile_pic: m.profile_pic,
-                    }),
+                    }, canManageRoles && !isSelf ? {
+                        canRemove: true,
+                        onRemove: (profile) => confirmAction({
+                            title: `Remove ${profile.name || profile.username}?`,
+                            message: "They will lose access to this school and its member resources.",
+                            confirmLabel: "Remove member", danger: true,
+                            onConfirm: async () => {
+                                try {
+                                    await SchoolsApi.removeMember(schoolId, profile.id);
+                                    Toast.success("Member removed");
+                                    Sheet.close();
+                                    this._renderMembers(qs("#app-content"), schoolId);
+                                } catch (err) { Toast.fromApiError(err); }
+                            },
+                        }),
+                    } : {}),
                 }, [
                     Avatar(m.full_name || m.username, m.profile_pic, "sm"),
                     h("div", { className: "card-row-text" }, [

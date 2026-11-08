@@ -154,8 +154,10 @@
 }
 .space-members-chip:hover { color: var(--primary); text-decoration: underline; }
 .space-member-list { display: flex; flex-direction: column; gap: 4px; max-height: 48vh; overflow-y: auto; }
-.space-member-row { display: flex; align-items: center; gap: 11px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+.space-member-row { display: flex; align-items: center; gap: 11px; padding: 10px 4px; border-bottom: 1px solid var(--border); cursor: pointer; border-radius: 10px; }
+.space-member-row:hover, .space-member-row:focus-visible { background: var(--surface-alt); outline: none; }
 .space-member-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-weight: 800; }
+.space-member-avatar-large { width: 72px; height: 72px; margin: 0 auto 10px; font-size: 1.5rem; }
 .space-member-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .space-member-copy strong { font-size: .9rem; overflow-wrap: anywhere; }
 .space-member-copy span { color: var(--muted); font-size: .76rem; }

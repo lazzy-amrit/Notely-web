@@ -52,6 +52,10 @@ const SpacesApi = {
         return Api.post(`/student/space/${encodeURIComponent(spaceId)}/leave`);
     },
 
+    removeMember(spaceId, userId) {
+        return Api.delete(`/student/space/${encodeURIComponent(spaceId)}/member/${encodeURIComponent(userId)}`);
+    },
+
     // POST /student/space/{spaceId}/folder/create { name, parentFolderId }
     createFolder(spaceId, name, parentFolderId = null) {
         return Api.post(`/student/space/${encodeURIComponent(spaceId)}/folder/create`, {

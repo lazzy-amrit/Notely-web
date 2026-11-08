@@ -233,12 +233,40 @@ const SpacesPage = {
         try {
             const data = await SpacesApi.members(spaceId);
             const members = data.members || [];
-            mount(list, ...(members.length ? members.map(member => h("div", { className: "space-member-row" }, [
+            mount(list, ...(members.length ? members.map(member => h("div", { className: "space-member-row", role: "button", tabindex: "0", onClick: () => this._openSpaceMemberCard(spaceId, space, member) }, [
                 h("div", { className: "space-member-avatar" }, (member.name || "?").slice(0, 1).toUpperCase()),
                 h("div", { className: "space-member-copy" }, [h("strong", {}, member.name), h("span", {}, `@${member.username || "member"}`)]),
                 member.is_owner ? h("span", { className: "badge badge-success" }, "Owner") : null,
             ])) : [h("p", { className: "field-hint" }, "No members found.")]));
         } catch (err) { mount(list, h("p", { className: "field-hint" }, err.message || "Couldn't load members.")); }
+    },
+
+    _openSpaceMemberCard(spaceId, space, member) {
+        const canRemove = !!space.is_owner && !member.is_owner;
+        const remove = canRemove ? h("button", {
+            className: "btn btn-danger btn-block", type: "button",
+            onClick: () => confirmAction({
+                title: `Remove ${member.name}?`,
+                message: "They will lose access to this student space and its files.",
+                confirmLabel: "Remove member", danger: true,
+                onConfirm: async () => {
+                    try {
+                        await SpacesApi.removeMember(spaceId, member.id);
+                        Toast.success("Member removed");
+                        setTimeout(() => { Sheet.close(); Sheet.close(); }, 0);
+                        this._renderSpace(qs("#app-content"), spaceId);
+                    } catch (err) { Toast.fromApiError(err); }
+                },
+            }),
+        }, [h("span", { className: "material-symbols-rounded" }, "person_remove"), " Remove from space"]) : null;
+        Sheet.open(h("div", { className: "profile-preview space-member-profile" }, [
+            h("div", { className: "sheet-handle" }),
+            h("div", { className: "space-member-avatar space-member-avatar-large" }, (member.name || "?").slice(0, 1).toUpperCase()),
+            h("h2", {}, member.name),
+            h("p", { className: "profile-username" }, `@${member.username || "member"}`),
+            h("span", { className: `badge ${member.is_owner ? "badge-owner" : "badge-role"}` }, member.is_owner ? "Owner" : "Member"),
+            remove,
+        ]));
     },
 
     // ---------------- SUBFOLDER VIEW ----------------

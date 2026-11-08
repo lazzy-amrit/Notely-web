@@ -2,7 +2,7 @@
 // The backend is authoritative: when an id is available we fetch the complete
 // public profile so role, bio, avatar and teacher details survive restarts.
 
-async function openProfilePreview(user) {
+async function openProfilePreview(user, options = {}) {
     let profile = user || {};
     if (profile?.id && window.UsersApi) {
         try {
@@ -15,6 +15,10 @@ async function openProfilePreview(user) {
 
     const displayName = profile.name || profile.username || "Notely user";
     const teacher = profile.teacher_profile;
+    const removeButton = options.canRemove ? h("button", {
+        className: "btn btn-danger btn-block", type: "button",
+        onClick: () => options.onRemove?.(profile),
+    }, [h("span", { className: "material-symbols-rounded" }, "person_remove"), " Remove from school"]) : null;
 
     Sheet.open(h("div", { className: "profile-preview" }, [
         h("div", { className: "sheet-handle" }),
@@ -31,6 +35,7 @@ async function openProfilePreview(user) {
             h("div", {}, [h("span", {}, "School"), h("strong", {}, teacher.school || "—")]),
             h("div", {}, [h("span", {}, "Subjects"), h("strong", {}, teacher.subjects || "—")]),
         ]) : null,
+        removeButton,
     ]));
 }
 

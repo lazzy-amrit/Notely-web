@@ -269,8 +269,9 @@ const Session = {
         // state - it needs the (still-live) access token to authenticate
         // the DELETE call, so it must happen before clear().
 
-        // Best-effort server-side refresh-token revocation. Don't let a
-        // failed logout request prevent local logout.
+        // Best-effort server-side refresh-token revocation. This endpoint
+        // deliberately does not require the expired access JWT: automatic
+        // logout must still revoke the opaque refresh token.
         if (refreshToken) {
             try {
                 const accessToken = await this.getToken();

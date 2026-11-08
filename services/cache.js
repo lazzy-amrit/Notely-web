@@ -18,7 +18,19 @@ const CacheService = {
         try {
             const raw = localStorage.getItem("notely_user");
             const user = raw ? JSON.parse(raw) : null;
-            return String(user?.id || user?.username || "current");
+            if (user?.id || user?.username) return String(user.id || user.username);
+
+            // Login stores tokens before /auth/me finishes. Scope the cache
+            // by the JWT subject during that first render so the initial
+            // "current" cache is not stranded when the user record arrives.
+            const access = localStorage.getItem("notely_access_token") || localStorage.getItem("notely_token");
+            const payload = access?.split(".")[1];
+            if (payload) {
+                const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+                const decoded = JSON.parse(atob(normalized + "=".repeat((4 - normalized.length % 4) % 4)));
+                if (decoded?.sub) return String(decoded.sub);
+            }
+            return "current";
         } catch { return "current"; }
     },
 
