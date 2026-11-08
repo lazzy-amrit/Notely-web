@@ -276,13 +276,14 @@ const NotesPage = {
     _MAX_NOTE_IMAGES: 50,
 
     _buildImagePicker() {
-        const state = { files: [] };
+        const state = { files: [], pdf: null };
         const MAX = this._MAX_NOTE_IMAGES;
 
         const stripWrap = h("div", { className: "image-picker-strip" });
         const countLabel = h("div", { className: "field-hint" }, "0 photos added");
 
         const galleryInput = h("input", { type: "file", accept: "image/*", multiple: "true", style: "display:none" });
+        const pdfInput = h("input", { type: "file", accept: "application/pdf,.pdf", style: "display:none" });
 
         // Object URLs are cached per file instead of being recreated on
         // every renderStrip() call (which used to leak one blob URL per
@@ -315,7 +316,7 @@ const NotesPage = {
                 thumb.addEventListener("click", () => NotesPage._openImagePreview(state, idx, renderStrip));
                 stripWrap.appendChild(thumb);
             });
-            countLabel.textContent = `${state.files.length} of ${MAX} photos added`;
+            countLabel.textContent = state.pdf ? `PDF selected: ${state.pdf.name}` : `${state.files.length} of ${MAX} photos added`;
             galleryBtn.disabled = state.files.length >= MAX;
             cameraBtn.disabled = state.files.length >= MAX;
         };
@@ -327,6 +328,7 @@ const NotesPage = {
         // upload are all working with the same, already-small file.
         const addFiles = async (fileList) => {
             const incoming = Array.from(fileList || []);
+            if (state.pdf) { Toast.error("Remove the PDF before adding photos."); return; }
             const room = MAX - state.files.length;
             if (room <= 0) { Toast.error(`Maximum ${MAX} images per note.`); return; }
             const accepted = incoming.slice(0, room);
@@ -340,9 +342,19 @@ const NotesPage = {
         };
 
         galleryInput.addEventListener("change", () => { addFiles(galleryInput.files); galleryInput.value = ""; });
+        pdfInput.addEventListener("change", () => {
+            const file = pdfInput.files?.[0];
+            pdfInput.value = "";
+            if (!file) return;
+            if (state.files.length) { Toast.error("Remove the photos before selecting a PDF."); return; }
+            state.pdf = file;
+            renderStrip();
+        });
 
         const galleryBtn = h("button", { className: "btn btn-outline btn-sm", type: "button", onClick: () => galleryInput.click() },
             [h("span", { className: "material-symbols-rounded" }, "photo_library"), " Gallery"]);
+        const pdfBtn = h("button", { className: "btn btn-outline btn-sm", type: "button", onClick: () => pdfInput.click() },
+            [h("span", { className: "material-symbols-rounded" }, "picture_as_pdf"), " PDF"]);
         // Camera -> device camera -> photo lands straight in the strip.
         // See _captureCameraPhoto below.
         const cameraBtn = h("button", { className: "btn btn-outline btn-sm", type: "button" },
@@ -365,14 +377,15 @@ const NotesPage = {
         renderStrip();
 
         const element = h("div", { className: "field" }, [
-            h("label", {}, "Photos"),
-            h("div", { style: "display:flex;gap:8px;margin-bottom:10px" }, [galleryBtn, cameraBtn]),
+            h("label", {}, "Photos or PDF"),
+            h("div", { style: "display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap" }, [galleryBtn, cameraBtn, pdfBtn]),
             stripWrap,
             countLabel,
             galleryInput,
+            pdfInput,
         ]);
 
-        return { element, getFiles: () => state.files.slice() };
+        return { element, getFiles: () => state.files.slice(), getPdf: () => state.pdf };
     },
 
     // Full-screen tap-to-view (matches the in-app PDF viewer's fullscreen
@@ -439,6 +452,7 @@ const NotesPage = {
     // a real File so the part always carries a proper .pdf filename.
     async _resolveUploadFile(picker) {
         const files = picker.getFiles();
+        if (picker.getPdf?.()) return picker.getPdf();
         if (!files.length) throw new Error("Add at least one photo (gallery or camera).");
         const blob = await imagesToPdfBlob(files);
         return new File([blob], "note.pdf", { type: "application/pdf" });

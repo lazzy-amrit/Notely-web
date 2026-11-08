@@ -22,7 +22,7 @@
 //     load after the first being instant.
 // ------------------------------------------------------------------
 
-const CACHE_VERSION = "v3.4";
+const CACHE_VERSION = "v3.5";
 const CACHE_NAME = `notely-web-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [

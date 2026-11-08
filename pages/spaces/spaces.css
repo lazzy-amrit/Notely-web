@@ -102,3 +102,45 @@
 .entity-row-action .material-symbols-rounded {
     font-size: 20px;
 }
+
+.space-fab-wrap {
+    position: fixed;
+    right: 18px;
+    bottom: calc(var(--nav-height) + 18px + env(safe-area-inset-bottom));
+    z-index: 90;
+}
+.space-fab {
+    width: 58px;
+    height: 58px;
+    border: 0;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    color: var(--on-primary);
+    background: linear-gradient(135deg, var(--primary-btn-from), var(--primary-btn-to));
+    box-shadow: 0 12px 28px rgba(27, 39, 80, .22);
+    transition: transform .2s ease, border-radius .2s ease;
+}
+.space-fab.is-open { transform: rotate(45deg); border-radius: 50%; }
+.space-fab .material-symbols-rounded { font-size: 30px; }
+.space-fab-menu {
+    position: absolute;
+    right: 0;
+    bottom: 70px;
+    width: 220px;
+    padding: 8px;
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: 0 14px 36px rgba(27, 39, 80, .18);
+    transform-origin: bottom right;
+    animation: space-menu-in .18s ease-out;
+}
+.space-fab-menu[hidden] { display: none; }
+.space-fab-menu button {
+    width: 100%; border: 0; background: transparent; color: var(--text);
+    display: flex; align-items: center; gap: 11px; padding: 12px 10px;
+    border-radius: 12px; text-align: left; font: inherit; cursor: pointer;
+}
+.space-fab-menu button:hover, .space-fab-menu button:focus-visible { background: var(--surface-alt); }
+.space-fab-menu .material-symbols-rounded { color: var(--primary); font-size: 21px; }
+@keyframes space-menu-in { from { opacity: 0; transform: scale(.85) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }

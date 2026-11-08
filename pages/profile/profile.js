@@ -263,7 +263,7 @@ const ProfilePage = {
     },
 
     _openChangePassword() {
-        const oldField = h("input", { type: "password", placeholder: "Current password" });
+        const oldField = h("input", { type: "password", placeholder: "Current password (optional for Google accounts)" });
         const newField = h("input", { type: "password", placeholder: "New password" });
         const btn = h("button", { className: "btn btn-primary btn-block" }, "Update password");
         btn.addEventListener("click", async () => {
@@ -277,7 +277,8 @@ const ProfilePage = {
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
             h("h3", { style: "margin-bottom:14px" }, "Change password"),
-            h("div", { className: "field" }, [h("label", {}, "Current password"), oldField]),
+            h("p", { className: "field-hint" }, "Google sign-in accounts can set a password without entering an old one."),
+            h("div", { className: "field" }, [h("label", {}, "Current password (optional)"), oldField]),
             h("div", { className: "field" }, [h("label", {}, "New password"), newField]),
             btn,
         ]));

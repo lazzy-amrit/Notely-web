@@ -65,12 +65,12 @@ const SpacesApi = {
     },
 
     // POST /student/space/{spaceId}/file/upload (multipart: file, folder_id?, name?)
-    // PDF only: strictly enforces and validates PDF files
+    // Images are normalized to a PDF in the UI before this method is called.
     async uploadFile(spaceId, file, folderId = null, displayName = null) {
         if (!file) throw new Error("Please select a file to upload.");
         const isPdf = file.type === "application/pdf" || (file.name && file.name.toLowerCase().endsWith(".pdf"));
         if (!isPdf) {
-            throw new Error("Only PDF files are supported in Student Space.");
+            throw new Error("Images must be converted to a PDF before upload.");
         }
 
         const form = new FormData();

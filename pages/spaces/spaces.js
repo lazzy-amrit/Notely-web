@@ -205,23 +205,10 @@ const SpacesPage = {
             ]) : null,
         ]);
 
-        const actionRow = h("div", { className: "spaces-action-row" }, [
-            h("button", {
-                className: "btn btn-primary btn-sm",
-                type: "button",
-                onClick: () => this._startUploadPdf(spaceId, null),
-            }, [h("span", { className: "material-symbols-rounded" }, "upload_file"), " Upload PDF"]),
-            h("button", {
-                className: "btn btn-ghost btn-sm",
-                type: "button",
-                onClick: () => this._openCreateFolderSheet(spaceId, null),
-            }, [h("span", { className: "material-symbols-rounded" }, "create_new_folder"), " New Folder"]),
-        ]);
-
         const body = h("div", { className: "space-body" });
         this._renderContentsList(body, spaceId, null, folders, files);
 
-        mount(container, header, summaryCard, actionRow, body);
+        mount(container, header, summaryCard, body, this._spaceFab(spaceId, null));
     },
 
     // ---------------- SUBFOLDER VIEW ----------------
@@ -281,23 +268,27 @@ const SpacesPage = {
             h("strong", {}, folder.name),
         ]);
 
-        const actionRow = h("div", { className: "spaces-action-row" }, [
-            h("button", {
-                className: "btn btn-primary btn-sm",
-                type: "button",
-                onClick: () => this._startUploadPdf(spaceId, folderId),
-            }, [h("span", { className: "material-symbols-rounded" }, "upload_file"), " Upload PDF"]),
-            h("button", {
-                className: "btn btn-ghost btn-sm",
-                type: "button",
-                onClick: () => this._openCreateFolderSheet(spaceId, folderId),
-            }, [h("span", { className: "material-symbols-rounded" }, "create_new_folder"), " New Subfolder"]),
-        ]);
-
         const body = h("div", { className: "space-body" });
         this._renderContentsList(body, spaceId, folderId, folders, files);
 
-        mount(container, header, crumb, actionRow, body);
+        mount(container, header, crumb, body, this._spaceFab(spaceId, folderId));
+    },
+
+    _spaceFab(spaceId, folderId) {
+        const menu = h("div", { className: "space-fab-menu", hidden: true }, [
+            h("button", { type: "button", onClick: () => this._startUploadPdf(spaceId, folderId) }, [
+                h("span", { className: "material-symbols-rounded" }, "upload_file"), h("span", {}, "Upload PDF or images"),
+            ]),
+            h("button", { type: "button", onClick: () => this._openCreateFolderSheet(spaceId, folderId) }, [
+                h("span", { className: "material-symbols-rounded" }, "create_new_folder"), h("span", {}, folderId ? "Create subfolder" : "Create folder"),
+            ]),
+        ]);
+        const fab = h("button", { className: "space-fab", type: "button", title: "Create or upload", onClick: (e) => {
+            e.stopPropagation(); menu.hidden = !menu.hidden; fab.classList.toggle("is-open", !menu.hidden);
+        } }, [h("span", { className: "material-symbols-rounded" }, "add")]);
+        const wrap = h("div", { className: "space-fab-wrap", onClick: (e) => e.stopPropagation() }, [menu, fab]);
+        setTimeout(() => document.addEventListener("click", () => { menu.hidden = true; fab.classList.remove("is-open"); }, { once: true }), 0);
+        return wrap;
     },
 
     _renderContentsList(container, spaceId, folderId, folders, files) {
@@ -305,8 +296,8 @@ const SpacesPage = {
             mount(container, EmptyState({
                 icon: "folder_open",
                 title: "This folder is empty",
-                subtitle: "Upload a PDF or add a subfolder to get started.",
-                actionLabel: "Upload PDF",
+                subtitle: "Upload a PDF or images, or add a subfolder to get started.",
+                actionLabel: "Upload PDF or images",
                 onAction: () => this._startUploadPdf(spaceId, folderId),
             }));
             return;
@@ -424,26 +415,30 @@ const SpacesPage = {
         }
     },
 
-    // ---------------- UPLOAD PDF (PDF ONLY) ----------------
+    // ---------------- UPLOAD PDF OR IMAGES ----------------
     _startUploadPdf(spaceId, folderId = null) {
         const fileInput = document.createElement("input");
         fileInput.type = "file";
-        fileInput.accept = "application/pdf,.pdf";
+        fileInput.accept = "application/pdf,.pdf,image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
+        fileInput.multiple = true;
         fileInput.style.display = "none";
         document.body.appendChild(fileInput);
 
         fileInput.addEventListener("change", async () => {
-            const file = fileInput.files?.[0];
+            const picked = Array.from(fileInput.files || []);
             document.body.removeChild(fileInput);
-            if (!file) return;
+            if (!picked.length) return;
 
-            const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-            if (!isPdf) {
-                Toast.error("Only PDF files are supported in Student Space.");
+            const pdfs = picked.filter(file => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"));
+            const images = picked.filter(file => file.type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(file.name));
+            if (pdfs.length && images.length) {
+                Toast.error("Choose PDFs or images in one upload, not a mixture.");
                 return;
             }
 
-            const defaultName = file.name.replace(/\.pdf$/i, "");
+            const file = pdfs.length ? pdfs[0] : await imagesToPdfBlob(images).then(blob => new File([blob], "images.pdf", { type: "application/pdf" }));
+
+            const defaultName = pdfs.length === 1 ? file.name.replace(/\.pdf$/i, "") : `${images.length} scanned pages`;
             const nameInput = h("input", {
                 value: defaultName,
                 placeholder: "Document Title",
@@ -451,15 +446,15 @@ const SpacesPage = {
             const uploadBtn = h("button", {
                 className: "btn btn-primary btn-block",
                 type: "button",
-            }, "Upload PDF");
+            }, "Upload document");
 
             uploadBtn.addEventListener("click", async () => {
                 uploadBtn.disabled = true;
-                uploadBtn.textContent = "Uploading PDF…";
+                uploadBtn.textContent = "Uploading…";
                 try {
                     const finalName = (nameInput.value || "").trim() || defaultName;
                     await SpacesApi.uploadFile(spaceId, file, folderId, finalName);
-                    Toast.success("PDF uploaded successfully!");
+                    Toast.success("Document uploaded successfully!");
                     Sheet.close();
                     if (folderId) {
                         this._renderFolder(qs("#app-content"), spaceId, folderId);
@@ -469,15 +464,15 @@ const SpacesPage = {
                 } catch (err) {
                     Toast.fromApiError(err);
                     uploadBtn.disabled = false;
-                    uploadBtn.textContent = "Upload PDF";
+                    uploadBtn.textContent = "Upload document";
                 }
             });
 
             Sheet.open(h("div", {}, [
                 h("div", { className: "sheet-handle" }),
-                h("h3", { style: "margin-bottom:6px;" }, "Upload PDF"),
+            h("h3", { style: "margin-bottom:6px;" }, "Upload document"),
                 h("p", { className: "profile-meta", style: "margin-bottom:14px;" },
-                    `${file.name} (${this._formatBytes(file.size)})`),
+                    `${picked.length > 1 ? `${picked.length} images converted to one PDF` : file.name} (${this._formatBytes(file.size)})`),
                 h("div", { className: "field", style: "margin-bottom:16px;" }, [
                     h("label", {}, "Display Name"),
                     nameInput,
