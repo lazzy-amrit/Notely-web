@@ -5,8 +5,16 @@
 
 const SpacesApi = {
     // GET /student/space/me -> list of spaces the user is member of
-    list() {
-        return Api.get("/student/space/me");
+    async list() {
+        try {
+            return await Api.get("/student/space/me");
+        } catch (err) {
+            // A short retry smooths over transient mobile/Wi-Fi drops without
+            // retrying auth failures or showing a false empty state.
+            if (err?.status && err.status !== 0 && err.status < 500) throw err;
+            await new Promise(resolve => setTimeout(resolve, 350));
+            return Api.get("/student/space/me");
+        }
     },
 
     // POST /student/space/create { name } -> { message, space }
@@ -22,6 +30,10 @@ const SpacesApi = {
     // GET /student/space/{spaceId} -> { success, space, contents: { folders, files } }
     get(spaceId) {
         return Api.get(`/student/space/${encodeURIComponent(spaceId)}`);
+    },
+
+    members(spaceId) {
+        return Api.get(`/student/space/${encodeURIComponent(spaceId)}/members`);
     },
 
     // PATCH /student/space/{spaceId}/rename { name }

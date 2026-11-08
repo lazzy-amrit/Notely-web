@@ -60,9 +60,7 @@ const AuthApi = {
 
     // PATCH /auth/password  (JSON: old_password, new_password)
     changePassword(oldPassword, newPassword) {
-        const payload = { new_password: newPassword };
-        if (oldPassword && oldPassword.trim()) payload.old_password = oldPassword;
-        return Api.patch("/auth/password", payload);
+        return Api.patch("/auth/password", { old_password: oldPassword, new_password: newPassword });
     },
 
     // PATCH /account/forgot_pass?email=  (query param, no body)

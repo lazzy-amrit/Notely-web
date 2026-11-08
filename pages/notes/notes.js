@@ -542,6 +542,8 @@ const NotesPage = {
             classes: new Set((data.classes || []).map(x => x.id)),
             subjects: new Set((data.subjects || []).map(x => x.id)),
             notes: new Set((data.notes || []).map(x => x.id)),
+            spaces: new Set((data.spaces || []).map(x => x.id)),
+            folders: new Set((data.folders || []).map(x => x.id)),
         };
     },
 
@@ -591,6 +593,24 @@ const NotesPage = {
                     title: x.name,
                     subtitle: [x.school_name, `${x.class_name} ${x.section}`].filter(Boolean).join(" • "),
                     open: () => this._openNote(x),
+                })),
+            },
+            {
+                kind: "space",
+                label: "Student Spaces",
+                icon: "folder_shared",
+                items: (stars?.spaces || []).map(x => ({
+                    ...x, title: x.name, subtitle: "Student Space",
+                    open: () => Router.go(`spaces/${x.id}`),
+                })),
+            },
+            {
+                kind: "folder",
+                label: "Space folders",
+                icon: "folder",
+                items: (stars?.folders || []).map(x => ({
+                    ...x, title: x.name, subtitle: x.space_name || "Student Space",
+                    open: () => Router.go(`spaces/${x.space_id}/folder/${x.id}`),
                 })),
             },
         ];

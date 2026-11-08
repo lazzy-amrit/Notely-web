@@ -263,9 +263,10 @@ const ProfilePage = {
     },
 
     _openChangePassword() {
-        const oldField = h("input", { type: "password", placeholder: "Current password (optional for Google accounts)" });
+        const oldField = h("input", { type: "password", placeholder: "Current password" });
         const newField = h("input", { type: "password", placeholder: "New password" });
         const btn = h("button", { className: "btn btn-primary btn-block" }, "Update password");
+        const resetBtn = h("button", { className: "btn btn-ghost btn-block", type: "button", onClick: () => { window.location.href = "auth/password.html"; } }, "Forgot current password? Use email reset");
         btn.addEventListener("click", async () => {
             btn.disabled = true; btn.textContent = "Updating...";
             try {
@@ -277,10 +278,11 @@ const ProfilePage = {
         Sheet.open(h("div", {}, [
             h("div", { className: "sheet-handle" }),
             h("h3", { style: "margin-bottom:14px" }, "Change password"),
-            h("p", { className: "field-hint" }, "Google sign-in accounts can set a password without entering an old one."),
-            h("div", { className: "field" }, [h("label", {}, "Current password (optional)"), oldField]),
+            h("p", { className: "field-hint" }, "For Google accounts, use the email reset flow to safely set a password for the first time."),
+            h("div", { className: "field" }, [h("label", {}, "Current password"), oldField]),
             h("div", { className: "field" }, [h("label", {}, "New password"), newField]),
             btn,
+            resetBtn,
         ]));
     },
 

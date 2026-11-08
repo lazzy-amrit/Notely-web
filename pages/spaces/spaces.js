@@ -89,6 +89,8 @@ const SpacesPage = {
             }));
             return;
         }
+        const stars = await StarsApi.list().catch(() => ({ spaces: [] }));
+        const starredSpaces = new Set((stars.spaces || []).map(item => item.id));
 
         const banner = h("div", { className: "spaces-info-banner" }, [
             h("p", {}, "Shared study folders for classmates and peer groups. Upload and read PDFs together."),
@@ -132,6 +134,7 @@ const SpacesPage = {
                     h("strong", {}, sp.name),
                     h("span", {}, `${sp.memberCount || 1} ${sp.memberCount === 1 ? "member" : "members"}${sp.is_owner ? " · Owner" : ""}${sp.join_code ? ` · Code: ${sp.join_code}` : ""}`),
                 ]),
+                this._spaceStarButton("space", sp.id, starredSpaces.has(sp.id)),
                 h("button", {
                     className: "entity-row-action",
                     type: "button",
@@ -181,6 +184,8 @@ const SpacesPage = {
         const space = data.space;
         const folders = data.contents?.folders || [];
         const files = data.contents?.files || [];
+        const stars = await StarsApi.list().catch(() => ({ folders: [] }));
+        this._starredFolderIds = new Set((stars.folders || []).map(item => item.id));
 
         this._cachedCurrentSpace = space;
 
@@ -188,7 +193,8 @@ const SpacesPage = {
         const summaryCard = h("div", { className: "space-summary-card" }, [
             h("div", { className: "space-summary-text" }, [
                 h("strong", {}, space.name),
-                h("span", {}, `${space.memberCount || 1} members · ${folders.length} folders · ${files.length} PDFs`),
+                h("button", { className: "space-members-chip", type: "button", onClick: () => this._openMembersSheet(spaceId, space) },
+                    `${space.memberCount || 1} ${space.memberCount === 1 ? "member" : "members"} · ${folders.length} folders · ${files.length} PDFs`),
             ]),
             space.join_code ? h("button", {
                 className: "space-invite-chip",
@@ -209,6 +215,20 @@ const SpacesPage = {
         this._renderContentsList(body, spaceId, null, folders, files);
 
         mount(container, header, summaryCard, body, this._spaceFab(spaceId, null));
+    },
+
+    async _openMembersSheet(spaceId, space) {
+        const list = h("div", { className: "space-member-list" }, [h("p", { className: "field-hint" }, "Loading members…")]);
+        Sheet.open(h("div", {}, [h("div", { className: "sheet-handle" }), h("h3", {}, `${space.name} members`), list]));
+        try {
+            const data = await SpacesApi.members(spaceId);
+            const members = data.members || [];
+            mount(list, ...(members.length ? members.map(member => h("div", { className: "space-member-row" }, [
+                h("div", { className: "space-member-avatar" }, (member.name || "?").slice(0, 1).toUpperCase()),
+                h("div", { className: "space-member-copy" }, [h("strong", {}, member.name), h("span", {}, `@${member.username || "member"}`)]),
+                member.is_owner ? h("span", { className: "badge badge-success" }, "Owner") : null,
+            ])) : [h("p", { className: "field-hint" }, "No members found.")]));
+        } catch (err) { mount(list, h("p", { className: "field-hint" }, err.message || "Couldn't load members.")); }
     },
 
     // ---------------- SUBFOLDER VIEW ----------------
@@ -253,6 +273,8 @@ const SpacesPage = {
         const folder = data.folder;
         const folders = data.contents?.folders || [];
         const files = data.contents?.files || [];
+        const stars = await StarsApi.list().catch(() => ({ folders: [] }));
+        this._starredFolderIds = new Set((stars.folders || []).map(item => item.id));
 
         this._currentParentFolderId = folder.parentFolderId || null;
         this._cachedCurrentFolder = folder;
@@ -291,6 +313,22 @@ const SpacesPage = {
         return wrap;
     },
 
+    _spaceStarButton(kind, id, isStarred) {
+        let starred = isStarred;
+        const button = h("button", { className: `btn-icon star-btn${starred ? " starred" : ""}`, type: "button", title: starred ? "Remove from Notes" : "Save to Notes", onClick: async (event) => {
+            event.stopPropagation();
+            const previous = starred;
+            starred = !starred;
+            button.classList.toggle("starred", starred);
+            button.querySelector("span").textContent = starred ? "star" : "star_border";
+            button.classList.add("is-busy");
+            try { await StarsApi.toggle(kind, id, previous); }
+            catch (err) { starred = previous; button.classList.toggle("starred", starred); button.querySelector("span").textContent = starred ? "star" : "star_border"; Toast.fromApiError(err); }
+            finally { button.classList.remove("is-busy"); }
+        } }, [h("span", { className: "material-symbols-rounded" }, starred ? "star" : "star_border")]);
+        return button;
+    },
+
     _renderContentsList(container, spaceId, folderId, folders, files) {
         if (!folders.length && !files.length) {
             mount(container, EmptyState({
@@ -326,6 +364,7 @@ const SpacesPage = {
                         h("strong", {}, f.name),
                         h("span", {}, "Folder"),
                     ]),
+                    this._spaceStarButton("folder", f.id, this._starredFolderIds?.has(f.id)),
                     h("button", {
                         className: "entity-row-action",
                         type: "button",
