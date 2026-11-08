@@ -141,7 +141,7 @@ const SpacesPage = {
                     title: "Options",
                     onClick: (e) => {
                         e.stopPropagation();
-                        this._openSpaceMenu(sp);
+                        this._openSpaceMenu(sp, e.currentTarget);
                     },
                 }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
             ]);
@@ -250,7 +250,7 @@ const SpacesPage = {
                 className: "header-action",
                 type: "button",
                 title: "Folder Options",
-                onClick: () => this._openFolderOptions(spaceId, folderId),
+                onClick: (e) => this._openFolderOptions(spaceId, folderId, e.currentTarget),
             }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
         ]);
 
@@ -371,7 +371,7 @@ const SpacesPage = {
                         title: "Folder options",
                         onClick: (e) => {
                             e.stopPropagation();
-                            this._openFolderItemMenu(spaceId, f);
+                            this._openFolderItemMenu(spaceId, f, e.currentTarget);
                         },
                     }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
                 ]);
@@ -670,11 +670,41 @@ const SpacesPage = {
     },
 
     // ---------------- SPACE OPTIONS MENU ----------------
-    _openSpaceMenu(sp) {
+    _openAnchoredMenu(anchor, title, options) {
+        this._closeAnchoredMenu();
+        const menu = h("div", { className: "space-popover", role: "menu" }, [
+            h("div", { className: "space-popover-title" }, title),
+            ...options,
+        ]);
+        document.body.appendChild(menu);
+        const rect = anchor?.getBoundingClientRect?.();
+        const width = 236;
+        const left = Math.max(12, Math.min((rect?.right || window.innerWidth - 12) - width, window.innerWidth - width - 12));
+        menu.style.left = `${left}px`;
+        menu.style.top = `${Math.max(12, (rect?.bottom || 70) + 8)}px`;
+        this._activeSpacePopover = menu;
+        const close = (event) => {
+            if (!menu.contains(event.target) && event.target !== anchor) this._closeAnchoredMenu();
+        };
+        setTimeout(() => document.addEventListener("pointerdown", close, { once: true }), 0);
+        options.forEach(option => option.addEventListener("click", () => setTimeout(() => this._closeAnchoredMenu(), 0), { once: true }));
+    },
+
+    _closeAnchoredMenu() {
+        this._activeSpacePopover?.remove();
+        this._activeSpacePopover = null;
+    },
+
+    _openSpaceMenu(sp, anchor) {
         const isOwner = sp.is_owner;
         const options = [
             h("button", {
-                className: "action-tile",
+                className: "space-popover-item",
+                type: "button",
+                onClick: () => this._openMembersSheet(sp.id, sp),
+            }, [h("span", { className: "material-symbols-rounded" }, "info"), h("span", {}, "Details")]),
+            h("button", {
+                className: "space-popover-item",
                 type: "button",
                 onClick: async () => {
                     Sheet.close();
@@ -690,7 +720,7 @@ const SpacesPage = {
 
         if (isOwner) {
             options.push(h("button", {
-                className: "action-tile",
+                className: "space-popover-item",
                 type: "button",
                 onClick: () => {
                     Sheet.close();
@@ -702,7 +732,7 @@ const SpacesPage = {
             ]));
 
             options.push(h("button", {
-                className: "action-tile is-danger",
+                className: "space-popover-item is-danger",
                 type: "button",
                 onClick: () => {
                     Sheet.close();
@@ -726,7 +756,7 @@ const SpacesPage = {
             ]));
         } else {
             options.push(h("button", {
-                className: "action-tile is-danger",
+                className: "space-popover-item is-danger",
                 type: "button",
                 onClick: () => {
                     Sheet.close();
@@ -750,16 +780,12 @@ const SpacesPage = {
             ]));
         }
 
-        Sheet.open(h("div", {}, [
-            h("div", { className: "sheet-handle" }),
-            h("h3", { style: "margin-bottom:12px;" }, sp.name),
-            ...options,
-        ]));
+        this._openAnchoredMenu(anchor, sp.name, options);
     },
 
     _openSpaceOptions(spaceId) {
         const sp = this._cachedCurrentSpace || { id: spaceId, name: "Space" };
-        this._openSpaceMenu(sp);
+        this._openSpaceMenu(sp, qs(".header-action"));
     },
 
     _openRenameSpaceSheet(spaceId, currentName) {
@@ -805,10 +831,10 @@ const SpacesPage = {
     },
 
     // ---------------- FOLDER ITEM MENU ----------------
-    _openFolderItemMenu(spaceId, folder) {
+    _openFolderItemMenu(spaceId, folder, anchor) {
         const options = [
             h("button", {
-                className: "action-tile",
+                className: "space-popover-item",
                 type: "button",
                 onClick: () => {
                     Sheet.close();
@@ -819,7 +845,7 @@ const SpacesPage = {
                 h("div", {}, [h("strong", {}, "Rename Folder")]),
             ]),
             h("button", {
-                className: "action-tile is-danger",
+                className: "space-popover-item is-danger",
                 type: "button",
                 onClick: () => {
                     Sheet.close();
@@ -847,16 +873,12 @@ const SpacesPage = {
             ]),
         ];
 
-        Sheet.open(h("div", {}, [
-            h("div", { className: "sheet-handle" }),
-            h("h3", { style: "margin-bottom:12px;" }, folder.name),
-            ...options,
-        ]));
+        this._openAnchoredMenu(anchor, folder.name, options);
     },
 
-    _openFolderOptions(spaceId, folderId) {
+    _openFolderOptions(spaceId, folderId, anchor) {
         const folder = this._cachedCurrentFolder || { id: folderId, name: "Folder" };
-        this._openFolderItemMenu(spaceId, folder);
+        this._openFolderItemMenu(spaceId, folder, anchor);
     },
 
     _openRenameFolderSheet(spaceId, folderId, currentName) {

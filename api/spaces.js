@@ -4,17 +4,18 @@
 // ------------------------------------------------------------------
 
 const SpacesApi = {
-    // GET /student/space/me -> list of spaces the user is member of
-    async list() {
-        try {
-            return await Api.get("/student/space/me");
-        } catch (err) {
-            // A short retry smooths over transient mobile/Wi-Fi drops without
-            // retrying auth failures or showing a false empty state.
+    async _withRetry(request) {
+        try { return await request(); }
+        catch (err) {
             if (err?.status && err.status !== 0 && err.status < 500) throw err;
             await new Promise(resolve => setTimeout(resolve, 350));
-            return Api.get("/student/space/me");
+            return request();
         }
+    },
+
+    // GET /student/space/me -> list of spaces the user is member of
+    async list() {
+        return this._withRetry(() => Api.get("/student/space/me"));
     },
 
     // POST /student/space/create { name } -> { message, space }
@@ -29,7 +30,7 @@ const SpacesApi = {
 
     // GET /student/space/{spaceId} -> { success, space, contents: { folders, files } }
     get(spaceId) {
-        return Api.get(`/student/space/${encodeURIComponent(spaceId)}`);
+        return this._withRetry(() => Api.get(`/student/space/${encodeURIComponent(spaceId)}`));
     },
 
     members(spaceId) {
@@ -73,7 +74,7 @@ const SpacesApi = {
 
     // GET /student/space/{spaceId}/folder/{folderId} -> { success, folder, contents: { folders, files } }
     getFolder(spaceId, folderId) {
-        return Api.get(`/student/space/${encodeURIComponent(spaceId)}/folder/${encodeURIComponent(folderId)}`);
+        return this._withRetry(() => Api.get(`/student/space/${encodeURIComponent(spaceId)}/folder/${encodeURIComponent(folderId)}`));
     },
 
     // POST /student/space/{spaceId}/file/upload (multipart: file, folder_id?, name?)
