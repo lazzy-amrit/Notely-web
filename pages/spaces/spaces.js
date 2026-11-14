@@ -444,7 +444,7 @@ const SpacesPage = {
                         title: "File options",
                         onClick: (e) => {
                             e.stopPropagation();
-                            this._openFileMenu(spaceId, file);
+                            this._openFileMenu(spaceId, file, e.currentTarget);
                         },
                     }, [h("span", { className: "material-symbols-rounded" }, "more_vert")]),
                 ]);
@@ -962,7 +962,7 @@ const SpacesPage = {
     },
 
     // ---------------- FILE MENU ----------------
-    _openFileMenu(spaceId, file) {
+    _openFileMenu(spaceId, file, anchor) {
         const options = [
             h("button", {
                 className: "action-tile",
@@ -1026,7 +1026,7 @@ const SpacesPage = {
             ]),
         ];
 
-        Sheet.open(h("div", {}, [
+        Sheet.open(h("div", { className: "file-actions-sheet" }, [
             h("div", { className: "sheet-handle" }),
             h("h3", { style: "margin-bottom:12px;" }, file.name || file.original_name),
             ...options,

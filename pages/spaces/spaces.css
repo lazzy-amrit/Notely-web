@@ -104,6 +104,40 @@
     font-size: 20px;
 }
 
+/* File options are rendered as action tiles in a sheet. This was missing,
+   so the three-dot menu after Folders appeared as unstyled text/buttons. */
+.action-tile {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-top: 8px;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface-alt);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.action-tile:active,
+.action-tile:hover { background: var(--primary-soft); }
+.action-tile > .material-symbols-rounded {
+    flex: 0 0 auto;
+    color: var(--primary);
+    font-size: 21px;
+}
+.action-tile > div { min-width: 0; }
+.action-tile strong {
+    display: block;
+    font-size: .9rem;
+    line-height: 1.25;
+}
+.action-tile.is-danger,
+.action-tile.is-danger > .material-symbols-rounded { color: var(--danger); }
+
 .space-fab-wrap {
     position: fixed;
     right: 18px;

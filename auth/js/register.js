@@ -402,12 +402,14 @@ if (!response.ok) {
 
 // Success — normalized state consumed by otp.js. "mode: register" tells
 // the OTP screen this is a fresh account (not a login-time verification).
-Memory.set("verification", {
+const verificationState = {
     mode: "register",
     email: payload.email,
     username: payload.username,
     name: payload.name,
-});
+};
+Memory.set("verification", verificationState);
+Memory.setPersistent("verification", verificationState);
 
-window.location.href = "otp.html";
+window.location.replace("otp.html");
 });

@@ -27,7 +27,7 @@
 
 <body>
 
-    <main class="screen">
+    <main class="screen" aria-labelledby="otpTitle">
 
         <!-- Header -->
 
@@ -39,7 +39,7 @@
 
             </div>
 
-            <h1>
+            <h1 id="otpTitle">
 
                 Verify your email
 
@@ -66,32 +66,40 @@
                 <input
                     class="otp"
                     maxlength="1"
-                    inputmode="numeric">
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    aria-label="Digit 1"
+                    autofocus>
 
                 <input
                     class="otp"
                     maxlength="1"
-                    inputmode="numeric">
+                    inputmode="numeric"
+                    aria-label="Digit 2">
 
                 <input
                     class="otp"
                     maxlength="1"
-                    inputmode="numeric">
+                    inputmode="numeric"
+                    aria-label="Digit 3">
 
                 <input
                     class="otp"
                     maxlength="1"
-                    inputmode="numeric">
+                    inputmode="numeric"
+                    aria-label="Digit 4">
 
                 <input
                     class="otp"
                     maxlength="1"
-                    inputmode="numeric">
+                    inputmode="numeric"
+                    aria-label="Digit 5">
 
                 <input
                     class="otp"
                     maxlength="1"
-                    inputmode="numeric">
+                    inputmode="numeric"
+                    aria-label="Digit 6">
 
             </div>
 
@@ -99,6 +107,7 @@
 
             <button
                 id="verifyBtn"
+                type="button"
                 disabled>
 
                 Verify
@@ -115,6 +124,7 @@
 
                 <button
                     id="resendBtn"
+                    type="button"
                     disabled>
 
                     Resend Code

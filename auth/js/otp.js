@@ -4,7 +4,7 @@
 // Shared by registration and unverified-login verification.
 // Successful verification returns a JWT and goes directly to dashboard.
 
-const verification = Memory.get("verification");
+const verification = Memory.get("verification") || Memory.getPersistent("verification");
 
 if (!verification || !verification.email) {
     window.location.replace("login.html");
@@ -28,7 +28,17 @@ const successCard = document.getElementById("successCard");
 
 inputs.forEach((input, index) => {
     input.addEventListener("input", () => {
-        input.value = input.value.replace(/\D/g, "").slice(0, 1);
+        const digits = input.value.replace(/\D/g, "");
+        if (digits.length > 1) {
+            digits.slice(0, inputs.length).split("").forEach((digit, offset) => {
+                inputs[offset].value = digit;
+            });
+            inputs[Math.min(digits.length, inputs.length) - 1].focus();
+            otpError.textContent = "";
+            checkOTP();
+            return;
+        }
+        input.value = digits;
 
         if (input.value && index < inputs.length - 1) {
             inputs[index + 1].focus();
@@ -188,6 +198,7 @@ function showSuccess({ title, body, small }) {
 
 function goToDashboard() {
     Memory.remove("verification");
+    Memory.removePersistent("verification");
     Memory.remove("role");
     window.location.replace("../app.html");
 }

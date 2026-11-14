@@ -181,10 +181,12 @@ loginForm.addEventListener("submit", async e => {
     loginError.textContent = "";
     registerSuggestion.style.display = "none";
 
-    Memory.set("verification", {
+    const verificationState = {
         mode: "login",
         email: email,
-    });
+    };
+    Memory.set("verification", verificationState);
+    Memory.setPersistent("verification", verificationState);
 
     authNotice.classList.add("show");
 
@@ -198,7 +200,7 @@ loginForm.addEventListener("submit", async e => {
     ).catch(() => {});
 
     setTimeout(() => {
-        window.location.href = "otp.html";
+        window.location.replace("otp.html");
     }, 1400);
 
     return;
