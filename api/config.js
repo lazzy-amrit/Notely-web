@@ -12,7 +12,7 @@
 const DEFAULT_API_HOST = "https://balancer-nteoly-production.up.railway.app";
 
 const CONFIG = {
-  VERSION: "0.0.5",
+  VERSION: "0.0.6",
   API_HOST: DEFAULT_API_HOST,
 
   // Rough client-side mirror of backend rate limits, used only to

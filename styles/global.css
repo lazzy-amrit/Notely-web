@@ -278,7 +278,7 @@ body.no-scroll { overflow: hidden; }
 /* ---------------- TOASTS ---------------- */
 
 .toast-stack {
-    position: fixed; bottom: calc(var(--nav-height) + 16px); left: 0; right: 0;
+    position: fixed; bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 16px); left: 0; right: 0;
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     z-index: 2000; pointer-events: none; padding: 0 16px;
 }

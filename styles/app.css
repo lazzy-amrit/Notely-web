@@ -3,9 +3,11 @@
 ------------------------------------------------------------------ */
 
 #app {
+    height: 100dvh;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* ---------------- TOP HEADER ----------------
@@ -66,8 +68,11 @@
 
 #app-content {
     flex: 1;
-    padding: 8px 16px calc(var(--nav-height) + 28px);
+    min-height: 0;
+    padding: 8px 16px calc(var(--nav-height) + env(safe-area-inset-bottom) + 28px);
     overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -82,18 +87,24 @@
 .bottom-nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 100;
     height: calc(var(--nav-height) + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
+    padding: 6px 8px env(safe-area-inset-bottom);
     background: var(--surface);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
     display: flex;
-    box-shadow: 0 -2px 20px rgba(20,20,40,.06);
+    box-shadow: 0 -1px 0 var(--border), 0 -8px 24px rgba(20,20,40,.08);
+    transform: translateZ(0);
+    will-change: transform;
 }
 .nav-item {
-    flex: 1; border: none; background: none; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 3px; color: var(--muted);
-    font-size: .68rem; font-weight: 600; position: relative;
+    flex: 1; min-width: 0; border: none; background: transparent; display: flex;
+    flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    color: var(--muted); font-size: .68rem; font-weight: 600; position: relative;
+    border-radius: 14px; cursor: pointer; transition: color .16s ease, background .16s ease;
 }
 .nav-item .material-symbols-rounded { font-size: 24px; }
-.nav-item.active { color: var(--primary); }
+.nav-item.active { color: var(--primary); background: var(--primary-soft); }
 .nav-item.active .material-symbols-rounded { font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24; }
 
 /* ---------------- DASHBOARD ---------------- */

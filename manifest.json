@@ -2,7 +2,7 @@
     "id": "/app.html",
     "name": "Notely",
     "short_name": "Notely",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Class notes, subjects and chapters, organized by school — share PDFs, track progress and star what matters.",
     "lang": "en",
     "categories": ["education"],
